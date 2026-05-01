@@ -2,6 +2,7 @@ import { Button, Col, Container, Row } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import Loading from "./Loading";
 import Error from "./Error";
+import MyNavBar from "./MyNavBar";
 // import { useSelector } from "react-redux";
 // import { useNavigate } from "react-router";
 // import { useDispatch } from "react-redux";
