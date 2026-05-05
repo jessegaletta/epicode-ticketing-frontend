@@ -4,11 +4,13 @@ import MyFooter from "./MyFooter";
 
 const Layout = function () {
   return (
-    <>
+    <div className="d-flex flex-column min-vh-100">
       <MyNavBar />
-      <Outlet />
+      <main className="flex-grow-1 d-flex">
+        <Outlet />
+      </main>
       <MyFooter />
-    </>
+    </div>
   );
 };
 

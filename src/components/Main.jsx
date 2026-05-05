@@ -2,7 +2,6 @@ import { Button, Col, Container, Row } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import Loading from "./Loading";
 import Error from "./Error";
-import MyNavBar from "./MyNavBar";
 // import { useSelector } from "react-redux";
 // import { useNavigate } from "react-router";
 // import { useDispatch } from "react-redux";
@@ -12,7 +11,7 @@ const Main = function () {
   const [error, setError] = useState("");
 
   return (
-    <Container className="flex-grow-1">
+    <Container className="flex-grow-1 py-4">
       <div className="position-relative">
         <h1 className="text-center my-5">Epicode Ticketing</h1>
       </div>
