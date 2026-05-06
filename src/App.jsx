@@ -15,6 +15,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Main />} />
             <Route path="/login" element={<Login />} />
+            {/* <Route path="/profile" element={<Profile />} /> */}
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
