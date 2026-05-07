@@ -1,4 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import Main from "./components/Main";
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import NotFound from "./components/NotFound";

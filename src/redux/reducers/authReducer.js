@@ -1,8 +1,9 @@
-import { LOGIN_START, LOGIN_SUCCESS, LOGIN_ERROR, LOGOUT } from "../actions";
+import { LOGIN_START, LOGIN_SUCCESS, LOGIN_ERROR, LOGOUT, SET_USER } from "../actions";
 
 const initialState = {
   isLoggedIn: !!localStorage.getItem("token"),
   token: localStorage.getItem("token") || null,
+  user: null,
   loading: false,
   error: null,
 };
@@ -34,6 +35,12 @@ const authReducer = (state = initialState, action) => {
         ...state,
         isLoggedIn: false,
         token: null,
+        user: null,
+      };
+    case SET_USER:
+      return {
+        ...state,
+        user: action.payload,
       };
     default:
       return state;

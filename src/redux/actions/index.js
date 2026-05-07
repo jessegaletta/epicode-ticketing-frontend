@@ -2,6 +2,8 @@ export const LOGIN_START = "LOGIN_START";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_ERROR = "LOGIN_ERROR";
 export const LOGOUT = "LOGOUT";
+export const SET_USER = "SET_USER";
+export const SET_SETTINGS = "SET_SETTINGS";
 
 export const loginAction = (credentials) => {
   return async (dispatch) => {
@@ -27,6 +29,43 @@ export const loginAction = (credentials) => {
             type: LOGIN_SUCCESS,
             payload: token,
           });
+
+          // Fetch user profile and settings
+          const meResponse = await fetch("http://localhost:3001/users/me", {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          
+          if (meResponse.ok) {
+            const userData = await meResponse.json();
+            
+            // Dispatch user details
+            dispatch({
+              type: SET_USER,
+              payload: {
+                id: userData.id,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                email: userData.email,
+                avatarURL: userData.avatarURL,
+                role: userData.role
+              }
+            });
+
+            // Dispatch settings
+            dispatch({
+              type: SET_SETTINGS,
+              payload: {
+                darkMode: userData.darkMode,
+                timezone: userData.timezone,
+                emailNotifications: userData.emailNotifications
+              }
+            });
+          } else {
+             console.log("Failed to fetch user profile");
+          }
+
         } else {
             throw new Error("Error getting token from response");
         }

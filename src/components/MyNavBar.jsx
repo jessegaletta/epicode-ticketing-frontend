@@ -15,6 +15,7 @@ function MyNavBar() {
   console.log(location);
 
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  const user = useSelector((state) => state.auth.user);
 
   return (
     <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
@@ -34,16 +35,20 @@ function MyNavBar() {
           <Dropdown.Toggle
             as="a"
             href="#"
-            className="d-block link-body-emphasis text-decoration-none"
+            className="d-block link-body-emphasis text-decoration-none d-flex align-items-center"
             id="dropdown-user"
           >
-            <img
-              src="https://github.com/mdo.png"
-              alt="mdo"
-              width="32"
-              height="32"
-              className="rounded-circle"
-            />
+            {user?.avatarURL ? (
+              <img
+                src={user.avatarURL}
+                alt="user avatar"
+                width="32"
+                height="32"
+                className="rounded-circle"
+              />
+            ) : (
+              <i className="bi bi-person-circle fs-4"></i>
+            )}
           </Dropdown.Toggle>
 
           <Dropdown.Menu className="text-small shadow">
