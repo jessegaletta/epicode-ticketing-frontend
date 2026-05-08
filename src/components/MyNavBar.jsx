@@ -4,14 +4,18 @@ import {
   Nav,
   Navbar
 } from "react-bootstrap";
-import { NavLink, useLocation } from "react-router";
+import { NavLink, useLocation, useNavigate } from "react-router";
 import logo from "../assets/logo.png";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutAction } from "../redux/actions";
+import { useState } from "react";
+import PrivacyPolicyModal from "./PrivacyPolicyModal";
 
 function MyNavBar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [modalShow, setModalShow] = useState(false);
   console.log(location);
 
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
@@ -30,7 +34,7 @@ function MyNavBar() {
           />{" "}
           Epicode Ticketing
         </Navbar.Brand>
-        {isLoggedIn &&
+        {isLoggedIn ? (
         <Dropdown align="end" className="flex-shrink-0 order-lg-last ms-auto ms-lg-0 me-2 me-lg-0">
           <Dropdown.Toggle
             as="a"
@@ -53,11 +57,21 @@ function MyNavBar() {
 
           <Dropdown.Menu className="text-small shadow">
             <Dropdown.Item href="/profile">Profile</Dropdown.Item>
+            <Dropdown.Item onClick={() => setModalShow(true)}>Privacy Policy</Dropdown.Item>
             <Dropdown.Divider />
-            <Dropdown.Item onClick={() => dispatch(logoutAction())}>Sign out</Dropdown.Item>
+            <Dropdown.Item onClick={() => dispatch(logoutAction(navigate))}>Sign out</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-}
+        ) : (
+          <NavLink
+            to="/login"
+            className="flex-shrink-0 order-lg-last ms-auto ms-lg-0 me-2 me-lg-0 link-body-emphasis text-decoration-none d-flex align-items-center"
+          >
+            <i className="bi bi-person-circle fs-4"></i>
+          </NavLink>
+        )}
+
+        <PrivacyPolicyModal show={modalShow} onHide={() => setModalShow(false)} />
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav" className="flex-grow-1">

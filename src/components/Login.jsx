@@ -77,6 +77,12 @@ const Login = () => {
               "Sign in"
             )}
           </Button>
+
+          <div className="text-center mt-3">
+             <a href="/register" onClick={(e) => { e.preventDefault(); navigate('/register'); }} className="text-decoration-none">
+                Don't have an account? Sign Up
+             </a>
+          </div>
         </Form>
       </Row>
     </Container>

@@ -31,40 +31,7 @@ export const loginAction = (credentials) => {
           });
 
           // Fetch user profile and settings
-          const meResponse = await fetch("http://localhost:3001/users/me", {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-          
-          if (meResponse.ok) {
-            const userData = await meResponse.json();
-            
-            // Dispatch user details
-            dispatch({
-              type: SET_USER,
-              payload: {
-                id: userData.id,
-                firstName: userData.firstName,
-                lastName: userData.lastName,
-                email: userData.email,
-                avatarURL: userData.avatarURL,
-                role: userData.role
-              }
-            });
-
-            // Dispatch settings
-            dispatch({
-              type: SET_SETTINGS,
-              payload: {
-                darkMode: userData.darkMode,
-                timezone: userData.timezone,
-                emailNotifications: userData.emailNotifications
-              }
-            });
-          } else {
-             console.log("Failed to fetch user profile");
-          }
+          dispatch(fetchProfileAction(token));
 
         } else {
             throw new Error("Error getting token from response");
@@ -91,9 +58,61 @@ export const loginAction = (credentials) => {
   };
 };
 
-export const logoutAction = () => {
+export const logoutAction = (navigate) => {
     return (dispatch) => {
         localStorage.removeItem("token");
         dispatch({ type: LOGOUT });
+        if (navigate) {
+            navigate("/");
+        } else {
+            window.location.href = "/";
+        }
     }
+}
+
+export const fetchProfileAction = (token) => {
+  return async (dispatch) => {
+    try {
+      const meResponse = await fetch("http://localhost:3001/users/me", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      if (meResponse.ok) {
+        const userData = await meResponse.json();
+        
+        // Dispatch user details
+        dispatch({
+          type: SET_USER,
+          payload: {
+            id: userData.id,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            email: userData.email,
+            avatarURL: userData.avatarURL,
+            role: userData.role
+          }
+        });
+
+        // Dispatch settings
+        dispatch({
+          type: SET_SETTINGS,
+          payload: {
+            darkMode: userData.darkMode,
+            timezone: userData.timezone,
+            emailNotifications: userData.emailNotifications
+          }
+        });
+      } else {
+          console.log("Failed to fetch user profile");
+          // If token is invalid/expired, we might want to logout
+          if(meResponse.status === 401) {
+             dispatch(logoutAction());
+          }
+      }
+    } catch(err) {
+       console.log("Error fetching profile", err);
+    }
+  }
 }

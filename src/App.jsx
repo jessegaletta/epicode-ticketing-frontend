@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router";
 import NotFound from "./components/NotFound";
 import Layout from "./components/Layout";
 import Login from "./components/Login";
+import Register from "./components/Register";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 
@@ -16,6 +17,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Main />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             {/* <Route path="/profile" element={<Profile />} /> */}
             <Route path="*" element={<NotFound />} />
           </Route>
