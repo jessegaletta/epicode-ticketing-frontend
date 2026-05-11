@@ -24,6 +24,8 @@ const Profile = () => {
     email: "",
     darkMode: false,
     timezone: "Europe/Amsterdam",
+    dateFormat: "DD/MM/YYYY",
+    timeFormat: "24h",
   });
 
   const [loading, setLoading] = useState(false);
@@ -39,6 +41,8 @@ const Profile = () => {
         email: user.email || "",
         darkMode: settings.darkMode || false,
         timezone: settings.timezone || "Europe/Amsterdam",
+        dateFormat: settings.dateFormat || "DD/MM/YYYY",
+        timeFormat: settings.timeFormat || "24h",
       });
     }
   }, [user, settings]);
@@ -88,6 +92,8 @@ const Profile = () => {
           payload: {
             darkMode: userData.darkMode,
             timezone: userData.timezone,
+            dateFormat: userData.dateFormat,
+            timeFormat: userData.timeFormat,
           },
         });
 
@@ -202,6 +208,35 @@ const Profile = () => {
               input: () => "text-body",
             }}
           />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="formDateFormat">
+          <FloatingLabel label="Date Format">
+            <Form.Select
+              name="dateFormat"
+              value={formValues.dateFormat}
+              onChange={handleInputChange}
+              aria-label="Date Format"
+            >
+              <option value="DD/MM/YYYY">DD/MM/YYYY (EU)</option>
+              <option value="MM/DD/YYYY">MM/DD/YYYY (US)</option>
+              <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
+            </Form.Select>
+          </FloatingLabel>
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="formTimeFormat">
+          <FloatingLabel label="Time Format">
+            <Form.Select
+              name="timeFormat"
+              value={formValues.timeFormat}
+              onChange={handleInputChange}
+              aria-label="Time Format"
+            >
+              <option value="24h">24h</option>
+              <option value="12h">12h (AM/PM)</option>
+            </Form.Select>
+          </FloatingLabel>
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formDarkMode">
