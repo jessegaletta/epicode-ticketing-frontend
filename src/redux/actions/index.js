@@ -100,8 +100,7 @@ export const fetchProfileAction = (token) => {
           type: SET_SETTINGS,
           payload: {
             darkMode: userData.darkMode,
-            timezone: userData.timezone,
-            emailNotifications: userData.emailNotifications
+            timezone: userData.timezone
           }
         });
       } else {

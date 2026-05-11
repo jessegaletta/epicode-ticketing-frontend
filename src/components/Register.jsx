@@ -106,6 +106,8 @@ const Register = () => {
                   placeholder="John"
                   value={formValues.firstName}
                   onChange={handleInputChange}
+                  minLength={2}
+                  maxLength={30}
                   required
                 />
               </FloatingLabel>
@@ -119,6 +121,8 @@ const Register = () => {
                   placeholder="Doe"
                   value={formValues.lastName}
                   onChange={handleInputChange}
+                  minLength={2}
+                  maxLength={30}
                   required
                 />
               </FloatingLabel>
@@ -151,6 +155,8 @@ const Register = () => {
               placeholder="Password"
               value={formValues.password}
               onChange={handleInputChange}
+              pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$"
+              title="Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number."
               required
             />
           </FloatingLabel>

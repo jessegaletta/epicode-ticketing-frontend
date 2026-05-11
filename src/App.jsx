@@ -6,6 +6,7 @@ import NotFound from "./components/NotFound";
 import Layout from "./components/Layout";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Profile from "./components/Profile";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 
@@ -18,7 +19,7 @@ function App() {
             <Route path="/" element={<Main />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            {/* <Route path="/profile" element={<Profile />} /> */}
+            <Route path="/users/me" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

@@ -1,9 +1,8 @@
 import { SET_SETTINGS } from "../actions";
 
 const initialState = {
-  darkMode: false,
-  timezone: "Europe/Rome",
-  emailNotifications: false,
+  darkMode: true,
+  timezone: "Europe/Amsterdam",
 };
 
 const settingsReducer = (state = initialState, action) => {
