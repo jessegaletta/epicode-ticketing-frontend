@@ -2,7 +2,7 @@ import { SET_SETTINGS } from "../actions";
 
 const initialState = {
   darkMode: true,
-  timezone: "Europe/Amsterdam",
+  timezone: "Europe/Belgrade",
   dateFormat: "DD/MM/YYYY",
   timeFormat: "24h",
 };

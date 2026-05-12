@@ -22,9 +22,9 @@ const Layout = function () {
   }, [darkMode]);
 
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className="d-flex flex-column vh-100">
       <MyNavBar />
-      <main className="flex-grow-1 d-flex">
+      <main className="flex-grow-1 d-flex overflow-auto">
         <Outlet />
       </main>
       <MyFooter />
