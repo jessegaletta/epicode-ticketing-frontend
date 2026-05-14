@@ -66,9 +66,9 @@ const Register = () => {
         let errorMsg = "Registration failed";
         try {
           const errorData = await response.json();
-          // The backend returns ErrorsWithListDTO which has an errorsList array
-          if (errorData.errorsList && errorData.errorsList.length > 0) {
-             errorMsg = errorData.errorsList.join(", ");
+          // The backend returns ErrorsWithListDTO which has an errors array
+          if (errorData.errors && errorData.errors.length > 0) {
+             errorMsg = errorData.errors.join(", ");
           } else {
              errorMsg = errorData.message || errorMsg;
           }

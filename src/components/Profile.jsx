@@ -21,10 +21,16 @@ const Profile = () => {
   const { user, token } = useSelector((state) => state.auth);
   const settings = useSelector((state) => state.settings);
 
-  const { options } = useTimezoneSelect({ timezones: allTimezones, labelStyle: "original", displayValue: "GMT" });
+  const { options } = useTimezoneSelect({
+    timezones: allTimezones,
+    labelStyle: "original",
+    displayValue: "GMT",
+  });
 
   const [avatarFile, setAvatarFile] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [formValues, setFormValues] = useState({
     firstName: "",
@@ -69,6 +75,19 @@ const Profile = () => {
     setSuccess(false);
     setLoading(true);
 
+    if (newPassword || confirmPassword) {
+      if (newPassword !== confirmPassword) {
+        setError("Passwords do not match.");
+        setLoading(false);
+        return;
+      }
+    }
+
+    const submitValues = { ...formValues };
+    if (newPassword) {
+      submitValues.password = newPassword;
+    }
+
     try {
       const response = await fetch("http://localhost:3001/users/me", {
         method: "PUT",
@@ -76,15 +95,15 @@ const Profile = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formValues),
+        body: JSON.stringify(submitValues),
       });
 
       if (!response.ok) {
         let errorMsg = "Failed to update profile";
         try {
           const errorData = await response.json();
-          if (errorData.errorsList && errorData.errorsList.length > 0) {
-            errorMsg = errorData.errorsList.join(", ");
+          if (errorData.errors && errorData.errors.length > 0) {
+            errorMsg = errorData.errors.join(", ");
           } else {
             errorMsg = errorData.message || errorMsg;
           }
@@ -100,13 +119,16 @@ const Profile = () => {
         const formData = new FormData();
         formData.append("avatar", avatarFile);
 
-        const avatarResponse = await fetch("http://localhost:3001/users/me/avatar", {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const avatarResponse = await fetch(
+          "http://localhost:3001/users/me/avatar",
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
           },
-          body: formData,
-        });
+        );
 
         if (!avatarResponse.ok) {
           throw new Error("Failed to upload avatar");
@@ -138,6 +160,8 @@ const Profile = () => {
       });
 
       setSuccess(true);
+      setNewPassword("");
+      setConfirmPassword("");
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       setError(err.message || "An error occurred while updating profile.");
@@ -230,6 +254,34 @@ const Profile = () => {
           </FloatingLabel>
         </Form.Group>
 
+         <hr className="my-4" />
+
+        <h4 className="mb-3">Security</h4>
+
+        <Form.Group className="mb-3" controlId="formNewPassword">
+          <FloatingLabel label="New Password">
+            <Form.Control
+              type="password"
+              placeholder="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$"
+              title="Must contain at least 8 characters, including uppercase, lowercase letters and numbers"
+            />
+          </FloatingLabel>
+        </Form.Group>
+
+        <Form.Group className="mb-4" controlId="formConfirmPassword">
+          <FloatingLabel label="Confirm Password">
+            <Form.Control
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </FloatingLabel>
+        </Form.Group>
+
         <hr className="my-4" />
 
         <h4 className="mb-3">Preferences</h4>
@@ -296,7 +348,10 @@ const Profile = () => {
         </Form.Group>
 
         <Form.Group className="mb-4" controlId="formAvatar">
-          <Form.Label className="text-muted mb-1" style={{ fontSize: "0.875em" }}>
+          <Form.Label
+            className="text-muted mb-1"
+            style={{ fontSize: "0.875em" }}
+          >
             Profile Picture
           </Form.Label>
           <Form.Control
