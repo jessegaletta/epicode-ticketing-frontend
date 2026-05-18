@@ -43,6 +43,9 @@ const authReducer = (state = initialState, action) => {
         isLoggedIn: false,
         token: null,
         user: null,
+        loading: false,
+        error: null,
+        successMessage: null,
       };
     case SET_USER:
       return {

@@ -1,4 +1,4 @@
-import { SET_SETTINGS } from "../actions";
+import { SET_SETTINGS, LOGOUT } from "../actions";
 
 const initialState = {
   darkMode: true,
@@ -14,6 +14,8 @@ const settingsReducer = (state = initialState, action) => {
         ...state,
         ...action.payload,
       };
+    case LOGOUT:
+      return initialState;
     default:
       return state;
   }
