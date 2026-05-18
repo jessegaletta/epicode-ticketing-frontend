@@ -9,7 +9,7 @@ import {
 } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { SET_USER, SET_SETTINGS, logoutAction } from "../redux/actions";
+import { updateProfileAction, deleteAccountAction, CLEAR_AUTH_MESSAGES } from "../redux/actions";
 import Loading from "./Loading";
 import { useTimezoneSelect, allTimezones } from "react-timezone-select";
 import { useNavigate } from "react-router";
@@ -18,7 +18,7 @@ import ConfirmModal from "./ConfirmModal";
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, token } = useSelector((state) => state.auth);
+  const { user, token, loading, error: reduxError, successMessage } = useSelector((state) => state.auth);
   const settings = useSelector((state) => state.settings);
 
   const { options } = useTimezoneSelect({
@@ -42,10 +42,20 @@ const Profile = () => {
     timeFormat: "24h",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [localError, setLocalError] = useState("");
 
+  useEffect(() => {
+    return () => {
+      dispatch({ type: CLEAR_AUTH_MESSAGES });
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (successMessage === "Profile updated successfully!") {
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+  }, [successMessage]);
   // Pre-fill form when user/settings data becomes available
   useEffect(() => {
     if (user && settings) {
@@ -71,14 +81,11 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess(false);
-    setLoading(true);
+    setLocalError("");
 
     if (newPassword || confirmPassword) {
       if (newPassword !== confirmPassword) {
-        setError("Passwords do not match.");
-        setLoading(false);
+        setLocalError("Passwords do not match.");
         return;
       }
     }
@@ -88,107 +95,12 @@ const Profile = () => {
       submitValues.password = newPassword;
     }
 
-    try {
-      const response = await fetch("http://localhost:3001/users/me", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(submitValues),
-      });
-
-      if (!response.ok) {
-        let errorMsg = "Failed to update profile";
-        try {
-          const errorData = await response.json();
-          if (errorData.errors && errorData.errors.length > 0) {
-            errorMsg = errorData.errors.join(", ");
-          } else {
-            errorMsg = errorData.message || errorMsg;
-          }
-        } catch (e) {
-          // ignore
-        }
-        throw new Error(errorMsg);
-      }
-
-      let userData = await response.json();
-
-      if (avatarFile) {
-        const formData = new FormData();
-        formData.append("avatar", avatarFile);
-
-        const avatarResponse = await fetch(
-          "http://localhost:3001/users/me/avatar",
-          {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          },
-        );
-
-        if (!avatarResponse.ok) {
-          throw new Error("Failed to upload avatar");
-        }
-        userData = await avatarResponse.json();
-      }
-
-      // Update Redux state with new data
-      dispatch({
-        type: SET_USER,
-        payload: {
-          id: userData.id,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          email: userData.email,
-          avatarURL: userData.avatarURL,
-          role: userData.role,
-        },
-      });
-
-      dispatch({
-        type: SET_SETTINGS,
-        payload: {
-          darkMode: userData.darkMode,
-          timezone: userData.timezone,
-          dateFormat: userData.dateFormat,
-          timeFormat: userData.timeFormat,
-        },
-      });
-
-      setSuccess(true);
-      setNewPassword("");
-      setConfirmPassword("");
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      setError(err.message || "An error occurred while updating profile.");
-    } finally {
-      setLoading(false);
-    }
+    dispatch(updateProfileAction(submitValues, avatarFile, token));
   };
 
-  const handleDeleteAccount = async () => {
-    try {
-      const response = await fetch("http://localhost:3001/users/me", {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        dispatch(logoutAction(navigate));
-      } else {
-        setError("Failed to delete account");
-        setShowDeleteModal(false);
-      }
-    } catch (err) {
-      setError("An error occurred while deleting account.");
-      setShowDeleteModal(false);
-    }
+  const handleDeleteAccount = () => {
+    dispatch(deleteAccountAction(token, navigate));
+    setShowDeleteModal(false);
   };
 
   if (!user) {
@@ -203,9 +115,9 @@ const Profile = () => {
     <Container className="py-5" style={{ maxWidth: "600px" }}>
       <h2 className="mb-4">Profile</h2>
 
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && (
-        <Alert variant="success">Profile updated successfully!</Alert>
+      {(localError || reduxError) && <Alert variant="danger">{localError || reduxError}</Alert>}
+      {successMessage && (
+        <Alert variant="success">{successMessage}</Alert>
       )}
 
       <Form onSubmit={handleSubmit}>

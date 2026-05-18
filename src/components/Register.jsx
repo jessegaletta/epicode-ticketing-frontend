@@ -1,6 +1,8 @@
 import { Container, Form, Button, FloatingLabel, Row, Col, Alert } from "react-bootstrap";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { registerAction, CLEAR_AUTH_MESSAGES } from "../redux/actions";
 import Loading from "./Loading";
 import PrivacyPolicyModal from "./PrivacyPolicyModal";
 
@@ -13,12 +15,25 @@ const Register = () => {
     confirmPassword: "",
     acceptedTerms: false,
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
   const [modalShow, setModalShow] = useState(false);
+  const [localError, setLocalError] = useState("");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, error: reduxError, successMessage } = useSelector(state => state.auth);
+
+  useEffect(() => {
+    if (successMessage === "Registration successful! Redirecting to login...") {
+      const timer = setTimeout(() => navigate("/login"), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, navigate]);
+
+  useEffect(() => {
+    return () => {
+      dispatch({ type: CLEAR_AUTH_MESSAGES });
+    };
+  }, [dispatch]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -30,58 +45,25 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setLocalError("");
 
     // Validation
     if (formValues.password !== formValues.confirmPassword) {
-      setError("Passwords do not match.");
+      setLocalError("Passwords do not match.");
       return;
     }
 
     if (!formValues.acceptedTerms) {
-      setError("You must accept the Privacy Policy to register.");
+      setLocalError("You must accept the Privacy Policy to register.");
       return;
     }
 
-    setLoading(true);
-
-    try {
-      const response = await fetch("http://localhost:3001/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          firstName: formValues.firstName,
-          lastName: formValues.lastName,
-          email: formValues.email,
-          password: formValues.password,
-        }),
-      });
-
-      if (response.ok) {
-        setSuccess(true);
-        setTimeout(() => navigate("/login"), 3000);
-      } else {
-        let errorMsg = "Registration failed";
-        try {
-          const errorData = await response.json();
-          // The backend returns ErrorsWithListDTO which has an errors array
-          if (errorData.errors && errorData.errors.length > 0) {
-             errorMsg = errorData.errors.join(", ");
-          } else {
-             errorMsg = errorData.message || errorMsg;
-          }
-        } catch (e) {
-          // ignore
-        }
-        setError(errorMsg);
-      }
-    } catch (err) {
-      setError("An error occurred during registration.");
-    } finally {
-      setLoading(false);
-    }
+    dispatch(registerAction({
+      firstName: formValues.firstName,
+      lastName: formValues.lastName,
+      email: formValues.email,
+      password: formValues.password,
+    }));
   };
 
   return (
@@ -90,10 +72,10 @@ const Register = () => {
         <Form onSubmit={handleSubmit}>
           <h1 className="h3 mb-4 fw-normal text-center">Create an Account</h1>
 
-          {error && <Alert variant="danger">{error}</Alert>}
-          {success && (
+          {(localError || reduxError) && <Alert variant="danger">{localError || reduxError}</Alert>}
+          {successMessage && (
             <Alert variant="success">
-              Registration successful! Redirecting to login...
+              {successMessage}
             </Alert>
           )}
 
@@ -205,7 +187,7 @@ const Register = () => {
             variant="primary"
             className="w-100"
             type="submit"
-            disabled={loading || success}
+            disabled={loading || !!successMessage}
           >
             {loading ? <Loading /> : "Sign Up"}
           </Button>
