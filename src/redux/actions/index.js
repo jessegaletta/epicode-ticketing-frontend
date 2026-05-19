@@ -18,6 +18,13 @@ export const UPDATE_PROFILE_ERROR = "UPDATE_PROFILE_ERROR";
 export const DELETE_ACCOUNT_START = "DELETE_ACCOUNT_START";
 export const DELETE_ACCOUNT_ERROR = "DELETE_ACCOUNT_ERROR";
 
+export const FETCH_USERS_LIST_START = "FETCH_USERS_LIST_START";
+export const FETCH_USERS_LIST_SUCCESS = "FETCH_USERS_LIST_SUCCESS";
+export const FETCH_USERS_LIST_ERROR = "FETCH_USERS_LIST_ERROR";
+
+export const FETCH_USER_DETAIL_START = "FETCH_USER_DETAIL_START";
+export const FETCH_USER_DETAIL_SUCCESS = "FETCH_USER_DETAIL_SUCCESS";
+export const FETCH_USER_DETAIL_ERROR = "FETCH_USER_DETAIL_ERROR";
 
 export const loginAction = (credentials) => {
   return async (dispatch) => {
@@ -77,9 +84,9 @@ export const logoutAction = (navigate) => {
         localStorage.removeItem("token");
         dispatch({ type: LOGOUT });
         if (navigate) {
-            navigate("/");
+            navigate("/login");
         } else {
-            window.location.href = "/";
+            window.location.href = "/login";
         }
     }
 }
@@ -89,7 +96,7 @@ export const fetchProfileAction = (token) => {
     try {
       const meResponse = await fetch("http://localhost:3001/users/me", {
         headers: {
-          Authorization: `Bearer ${token}`
+          ...(token && { Authorization: `Bearer ${token}` })
         }
       });
       
@@ -177,7 +184,7 @@ export const updateProfileAction = (submitValues, avatarFile, token) => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify(submitValues),
       });
@@ -206,7 +213,7 @@ export const updateProfileAction = (submitValues, avatarFile, token) => {
         const avatarResponse = await fetch("http://localhost:3001/users/me/avatar", {
           method: "PATCH",
           headers: {
-            Authorization: `Bearer ${token}`,
+            ...(token && { Authorization: `Bearer ${token}` }),
           },
           body: formData,
         });
@@ -255,7 +262,7 @@ export const deleteAccountAction = (token, navigate) => {
       const response = await fetch("http://localhost:3001/users/me", {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
 
@@ -268,4 +275,102 @@ export const deleteAccountAction = (token, navigate) => {
       dispatch({ type: DELETE_ACCOUNT_ERROR, payload: "An error occurred while deleting account." });
     }
   };
+};
+
+export const fetchUsersListAction = ({ page = 0, search = "" }) => {
+  return async (dispatch) => {
+    dispatch({ type: FETCH_USERS_LIST_START });
+    try {
+      const token = localStorage.getItem("token");
+      let url = `http://localhost:3001/users?page=${page}`;
+      if (search) {
+        url += `&search=${encodeURIComponent(search)}`;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        dispatch({
+          type: FETCH_USERS_LIST_SUCCESS,
+          payload: data,
+        });
+      } else {
+        if (response.status === 401) {
+          dispatch(logoutAction());
+        }
+        throw new Error(response.status === 403 ? "Access Denied" : "Failed to fetch users");
+      }
+    } catch (error) {
+      dispatch({
+        type: FETCH_USERS_LIST_ERROR,
+        payload: error.message,
+      });
+    }
+  };
+};
+
+export const fetchUserDetailAction = (id) => {
+  return async (dispatch) => {
+    dispatch({ type: FETCH_USER_DETAIL_START });
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:3001/users/${id}`, {
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        dispatch({
+          type: FETCH_USER_DETAIL_SUCCESS,
+          payload: data,
+        });
+      } else {
+        if (response.status === 401) {
+          dispatch(logoutAction());
+        }
+        throw new Error(response.status === 403 ? "Access Denied" : "Failed to fetch user details");
+      }
+    } catch (error) {
+      dispatch({
+        type: FETCH_USER_DETAIL_ERROR,
+        payload: error.message,
+      });
+    }
+  };
+};
+
+export const saveUserAction = (id, userData, isEditing, navigate) => {
+  return async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const method = isEditing ? "PUT" : "POST";
+      const url = isEditing ? `http://localhost:3001/users/${id}` : `http://localhost:3001/users`;
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` })
+        },
+        body: JSON.stringify(userData)
+      });
+      
+      if(response.ok || response.status === 201) {
+        alert(isEditing ? "Utente aggiornato" : "Utente creato");
+        navigate("/users");
+      } else {
+        const err = await response.json();
+        alert(err.message || "Errore durante il salvataggio");
+      }
+    } catch (e) {
+      alert("Errore di rete o server non raggiungibile");
+    }
+  }
 };

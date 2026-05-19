@@ -7,6 +7,8 @@ import Layout from "./components/Layout";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Profile from "./components/Profile";
+import AccessDenied from "./components/AccessDenied";
+import UsersPage from "./components/UsersPage";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 
@@ -20,6 +22,10 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/users/me" element={<Profile />} />
+            <Route path="/users" element={<UsersPage />} />
+            <Route path="/users/new" element={<Profile />} />
+            <Route path="/users/:id" element={<Profile />} />
+            <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
