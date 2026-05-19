@@ -153,7 +153,14 @@ const Profile = () => {
     setShowDeleteModal(false);
   };
 
-  if (isLoading || (isMe && !user) || (isEditOther && !otherUser)) {
+  // Handle access denied redirect
+  useEffect(() => {
+    if (error && typeof error === 'string' && (error.toLowerCase().includes("access denied") || error.includes("403"))) {
+      navigate("/access-denied");
+    }
+  }, [error, navigate]);
+
+  if (isLoading || (isMe && !user && !error) || (isEditOther && !otherUser && !error)) {
     return (
       <Container className="text-center py-5">
         <Loading />

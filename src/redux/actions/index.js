@@ -363,14 +363,34 @@ export const saveUserAction = (id, userData, isEditing, navigate) => {
       });
       
       if(response.ok || response.status === 201) {
-        alert(isEditing ? "Utente aggiornato" : "Utente creato");
+        alert(isEditing ? "User updated" : "User created");
         navigate("/users");
       } else {
         const err = await response.json();
-        alert(err.message || "Errore durante il salvataggio");
+        alert(err.message || "Error during save");
       }
     } catch (e) {
-      alert("Errore di rete o server non raggiungibile");
+      alert("Network error or server unreachable");
     }
   }
+};
+
+export const deleteUserAction = (id) => {
+  return async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`http://localhost:3001/users/${id}`, {
+      method: "DELETE",
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` })
+      }
+    });
+    if (!response.ok) {
+      let errMessage = "Error during deletion";
+      try {
+        const err = await response.json();
+        errMessage = err.message || errMessage;
+      } catch (e) {}
+      throw new Error(errMessage);
+    }
+  };
 };

@@ -59,9 +59,16 @@ const GenericTable = ({
     setShowDeleteModal(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (onDelete && recordToDelete) {
-      onDelete(recordToDelete);
+      try {
+        await onDelete(recordToDelete);
+        if (onFetchData) {
+          onFetchData({ page, search: searchTerm });
+        }
+      } catch (e) {
+        console.error("Delete failed:", e);
+      }
     }
     setShowDeleteModal(false);
     setRecordToDelete(null);
