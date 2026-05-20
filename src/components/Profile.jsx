@@ -1,9 +1,22 @@
 import {
-  Container, Row, Col, Form, Button, Alert, FloatingLabel,
+  Container,
+  Row,
+  Col,
+  Form,
+  Button,
+  Alert,
+  FloatingLabel,
 } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateProfileAction, deleteAccountAction, CLEAR_AUTH_MESSAGES, fetchUserDetailAction, saveUserAction } from "../redux/actions";
+import {
+  updateProfileAction,
+  deleteAccountAction,
+  CLEAR_AUTH_MESSAGES,
+  fetchUserDetailAction,
+  saveUserAction,
+  deleteUserAction,
+} from "../redux/actions";
 import Loading from "./Loading";
 import { useTimezoneSelect, allTimezones } from "react-timezone-select";
 import { useNavigate, useParams, useLocation } from "react-router";
@@ -15,14 +28,24 @@ const Profile = () => {
   const { id } = useParams();
   const location = useLocation();
 
-  const isMe = location.pathname === "/users/me";
-  const isNew = id === "new";
+  const {
+    user,
+    token,
+    loading: authLoading,
+    error: reduxError,
+    successMessage,
+  } = useSelector((state) => state.auth);
+  const settings = useSelector((state) => state.settings);
+  const {
+    data: otherUser,
+    loading: detailLoading,
+    error: detailError,
+  } = useSelector((state) => state.users?.detail || {});
+
+  const isMe = location.pathname === "/users/me" || (user && id && String(user.id) === id);
+  const isNew = id === "new" || location.pathname === "/users/new";
   const isEditOther = id && id !== "new" && !isMe;
   const isReadOnly = isEditOther && !location.state?.editMode;
-
-  const { user, token, loading: authLoading, error: reduxError, successMessage } = useSelector((state) => state.auth);
-  const settings = useSelector((state) => state.settings);
-  const { data: otherUser, loading: detailLoading, error: detailError } = useSelector((state) => state.users?.detail || {});
 
   const isLoading = isMe ? authLoading : detailLoading;
   const error = isMe ? reduxError : detailError;
@@ -146,21 +169,36 @@ const Profile = () => {
     }
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     if (isMe) {
       dispatch(deleteAccountAction(token, navigate));
+    } else if (isEditOther) {
+      try {
+        await dispatch(deleteUserAction(id));
+        navigate("/users");
+      } catch (e) {
+        setLocalError(e.message || "Failed to delete user");
+      }
     }
     setShowDeleteModal(false);
   };
 
   // Handle access denied redirect
   useEffect(() => {
-    if (error && typeof error === 'string' && (error.toLowerCase().includes("access denied") || error.includes("403"))) {
+    if (
+      error &&
+      typeof error === "string" &&
+      (error.toLowerCase().includes("access denied") || error.includes("403"))
+    ) {
       navigate("/access-denied");
     }
   }, [error, navigate]);
 
-  if (isLoading || (isMe && !user && !error) || (isEditOther && !otherUser && !error)) {
+  if (
+    isLoading ||
+    (isMe && !user && !error) ||
+    (isEditOther && !otherUser && !error)
+  ) {
     return (
       <Container className="text-center py-5">
         <Loading />
@@ -168,7 +206,9 @@ const Profile = () => {
     );
   }
 
-  const showRoleDropdown = (isNew || isEditOther) && (user?.role === "ADMIN" || user?.role === "SUPERADMIN");
+  const showRoleDropdown =
+    (isNew || isEditOther) &&
+    (user?.role === "ADMIN" || user?.role === "SUPERADMIN");
 
   return (
     <Container className="py-5" style={{ maxWidth: "600px" }}>
@@ -177,19 +217,24 @@ const Profile = () => {
           {isNew
             ? "Create New User"
             : isEditOther
-            ? isReadOnly
-              ? "User Details"
-              : "Edit User"
-            : "My Profile"}
+              ? isReadOnly
+                ? "User Details"
+                : "Edit User"
+              : "My Profile"}
         </h2>
-        {(isNew || isEditOther) && (
-          <Button variant="outline-secondary" onClick={() => navigate("/users")}>
+        {(isNew || (id && id !== "new")) && (
+          <Button
+            variant="outline-secondary"
+            onClick={() => navigate("/users")}
+          >
             <i className="bi bi-arrow-left"></i> Back to List
           </Button>
         )}
       </div>
 
-      {(localError || error) && <Alert variant="danger">{localError || error}</Alert>}
+      {(localError || error) && (
+        <Alert variant="danger">{localError || error}</Alert>
+      )}
       {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
       <Form onSubmit={handleSubmit}>
@@ -362,7 +407,10 @@ const Profile = () => {
 
         {isMe && (
           <Form.Group className="mb-4" controlId="formAvatar">
-            <Form.Label className="text-muted mb-1" style={{ fontSize: "0.875em" }}>
+            <Form.Label
+              className="text-muted mb-1"
+              style={{ fontSize: "0.875em" }}
+            >
               Profile Picture
             </Form.Label>
             <Form.Control
@@ -381,26 +429,29 @@ const Profile = () => {
             disabled={isLoading}
             className="w-100 mb-3"
           >
-            {isLoading ? <Loading /> : (isNew ? "Create User" : "Save Changes")}
+            {isLoading ? <Loading /> : isNew ? "Create User" : "Save Changes"}
           </Button>
         )}
       </Form>
 
-      {isMe && (
+      {(isMe || (isEditOther && !isReadOnly)) && (
         <>
           <hr className="my-4" />
           <h4 className="mb-3 text-danger">Danger Zone</h4>
-          <Button variant="outline-danger" onClick={() => setShowDeleteModal(true)}>
-            Delete Account
+          <Button
+            variant="outline-danger"
+            onClick={() => setShowDeleteModal(true)}
+          >
+            {isMe ? "Delete Account" : "Delete User"}
           </Button>
 
           <ConfirmModal
             show={showDeleteModal}
             onHide={() => setShowDeleteModal(false)}
             onConfirm={handleDeleteAccount}
-            title="Delete Account"
-            message="Are you sure you want to delete your account? This action cannot be undone."
-            confirmText="Delete Account"
+            title={isMe ? "Delete Account" : "Delete User"}
+            message={`Are you sure you want to delete ${isMe ? "your account" : "this user"}? This action cannot be undone.`}
+            confirmText={isMe ? "Delete Account" : "Delete User"}
             cancelText="Close"
             confirmVariant="danger"
           />

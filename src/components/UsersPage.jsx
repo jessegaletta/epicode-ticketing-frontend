@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import GenericTable from "./GenericTable";
-import { fetchUsersListAction, deleteUserAction } from "../redux/actions";
+import { fetchUsersListAction } from "../redux/actions";
 
 const UsersPage = () => {
   const dispatch = useDispatch();
@@ -15,16 +15,6 @@ const UsersPage = () => {
   // The callback function that the table will use to request data
   const handleFetchData = (params) => {
     dispatch(fetchUsersListAction(params));
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await dispatch(deleteUserAction(id));
-      // GenericTable will refetch automatically if this promise resolves
-    } catch (e) {
-      alert(e.message);
-      throw e;
-    }
   };
 
   // Define the table columns
@@ -49,7 +39,6 @@ const UsersPage = () => {
         error={error}
         totalPages={totalPages}
         onFetchData={handleFetchData}
-        onDelete={handleDelete}
         detailsUrlPrefix="users"
       />
     </div>

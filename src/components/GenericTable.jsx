@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Table, Button, Form, InputGroup, Pagination, Container, Row, Col, Spinner, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router";
-import ConfirmModal from "./ConfirmModal";
 
 const GenericTable = ({
   columns,
@@ -10,7 +9,6 @@ const GenericTable = ({
   error = null,
   totalPages = 1,
   onFetchData,
-  onDelete,
   detailsUrlPrefix
 }) => {
   const [page, setPage] = useState(0);
@@ -18,8 +16,6 @@ const GenericTable = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState("id");
   const [sortDir, setSortDir] = useState("ASC");
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [recordToDelete, setRecordToDelete] = useState(null);
   const navigate = useNavigate();
 
   // Handle access denied redirect
@@ -64,26 +60,6 @@ const GenericTable = ({
 
   const handleOpen = (item) => {
     navigate(`/${detailsUrlPrefix}/${item.id}`, { state: { editMode: !!item.isEditable } });
-  };
-
-  const handleDelete = (id) => {
-    setRecordToDelete(id);
-    setShowDeleteModal(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (onDelete && recordToDelete) {
-      try {
-        await onDelete(recordToDelete);
-        if (onFetchData) {
-          onFetchData({ page, search: searchTerm, sortBy: sortField, sortDir });
-        }
-      } catch (e) {
-        console.error("Delete failed:", e);
-      }
-    }
-    setShowDeleteModal(false);
-    setRecordToDelete(null);
   };
 
   return (
@@ -139,49 +115,24 @@ const GenericTable = ({
                     )}
                   </th>
                 ))}
-                <th className="text-end text-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody>
               {data.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length + 1} className="text-center py-4">
+                  <td colSpan={columns.length} className="text-center py-4">
                     No records found.
                   </td>
                 </tr>
               ) : (
                 data.map((item) => (
-                  <tr key={item.id}>
+                  <tr key={item.id} onClick={() => handleOpen(item)} style={{ cursor: "pointer" }} className="table-row-clickable">
                     {columns.map((col, index) => (
                       <td key={index} className="align-middle text-nowrap">
                         {/* Nested properties can be accessed if field is e.g. "user.name" */}
                         {item[col.field]}
                       </td>
                     ))}
-                    <td className="text-end align-middle text-nowrap">
-                      {/* Conditionally render edit or view button based on isEditable */}
-                      <Button
-                        variant={item.isEditable ? "outline-warning" : "outline-info"}
-                        size="sm"
-                        className="me-2"
-                        onClick={() => handleOpen(item)}
-                        title={item.isEditable ? "Open (Edit)" : "Open (View)"}
-                      >
-                        <i className="bi bi-box-arrow-up-right"></i>
-                      </Button>
-
-                      {/* Conditionally render Delete if isEditable is true */}
-                      {item.isEditable && (
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={() => handleDelete(item.id)}
-                          title="Delete"
-                        >
-                          <i className="bi bi-trash"></i>
-                        </Button>
-                      )}
-                    </td>
                   </tr>
                 ))
               )}
@@ -213,17 +164,6 @@ const GenericTable = ({
           )}
         </>
       )}
-
-      {/* Delete Confirmation Modal */}
-      <ConfirmModal
-        show={showDeleteModal}
-        onHide={() => setShowDeleteModal(false)}
-        onConfirm={handleConfirmDelete}
-        title="Confirm Deletion"
-        message="Are you sure you want to delete this record? This action cannot be undone."
-        confirmText="Delete"
-        confirmVariant="danger"
-      />
     </Container>
   );
 };
