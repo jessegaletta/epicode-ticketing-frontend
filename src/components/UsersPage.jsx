@@ -36,7 +36,7 @@ const UsersPage = () => {
   ];
 
   return (
-    <div className="d-flex flex-column flex-grow-1">
+    <div className="d-flex flex-column flex-grow-1 w-100" style={{ minWidth: 0 }}>
       <div className="container mt-4">
         <h2>Users Management</h2>
         <p className="text-muted">Manage your users here.</p>

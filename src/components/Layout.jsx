@@ -24,7 +24,7 @@ const Layout = function () {
   return (
     <div className="d-flex flex-column vh-100">
       <MyNavBar />
-      <main className="flex-grow-1 d-flex overflow-auto">
+      <main className="flex-grow-1 d-flex flex-column overflow-x-hidden overflow-y-auto w-100">
         <Outlet />
       </main>
       <MyFooter />

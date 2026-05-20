@@ -277,12 +277,12 @@ export const deleteAccountAction = (token, navigate) => {
   };
 };
 
-export const fetchUsersListAction = ({ page = 0, search = "" }) => {
+export const fetchUsersListAction = ({ page = 0, search = "", sortBy = "id", sortDir = "ASC" }) => {
   return async (dispatch) => {
     dispatch({ type: FETCH_USERS_LIST_START });
     try {
       const token = localStorage.getItem("token");
-      let url = `http://localhost:3001/users?page=${page}`;
+      let url = `http://localhost:3001/users?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
       }

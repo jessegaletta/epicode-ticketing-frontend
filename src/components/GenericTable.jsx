@@ -16,6 +16,8 @@ const GenericTable = ({
   const [page, setPage] = useState(0);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortField, setSortField] = useState("id");
+  const [sortDir, setSortDir] = useState("ASC");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState(null);
   const navigate = useNavigate();
@@ -27,12 +29,12 @@ const GenericTable = ({
     }
   }, [error, navigate]);
 
-  // Fetch data whenever page or searchTerm changes
+  // Fetch data whenever page, searchTerm, or sorting changes
   useEffect(() => {
     if (onFetchData) {
-      onFetchData({ page, search: searchTerm });
+      onFetchData({ page, search: searchTerm, sortBy: sortField, sortDir });
     }
-  }, [page, searchTerm]); 
+  }, [page, searchTerm, sortField, sortDir]); 
 
   const handleSearch = () => {
     setPage(0); // Reset to first page on new search
@@ -50,6 +52,16 @@ const GenericTable = ({
     navigate(`/${detailsUrlPrefix}/new`);
   };
 
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDir(sortDir === "ASC" ? "DESC" : "ASC");
+    } else {
+      setSortField(field);
+      setSortDir("ASC");
+    }
+    setPage(0); // Reset to first page on sort change
+  };
+
   const handleOpen = (item) => {
     navigate(`/${detailsUrlPrefix}/${item.id}`, { state: { editMode: !!item.isEditable } });
   };
@@ -64,7 +76,7 @@ const GenericTable = ({
       try {
         await onDelete(recordToDelete);
         if (onFetchData) {
-          onFetchData({ page, search: searchTerm });
+          onFetchData({ page, search: searchTerm, sortBy: sortField, sortDir });
         }
       } catch (e) {
         console.error("Delete failed:", e);
@@ -77,8 +89,8 @@ const GenericTable = ({
   return (
     <Container className="my-4 flex-grow-1">
       {/* Top Toolbar */}
-      <Row className="mb-3">
-        <Col xs={12} md={6} className="mb-2 mb-md-0">
+      <Row className="mb-3 align-items-center flex-nowrap g-2">
+        <Col style={{ minWidth: 0 }}>
           <InputGroup>
             <Form.Control
               placeholder="Search..."
@@ -91,9 +103,9 @@ const GenericTable = ({
             </Button>
           </InputGroup>
         </Col>
-        <Col xs={12} md={6} className="text-md-end">
+        <Col xs="auto">
           <Button variant="success" onClick={handleNew}>
-            <i className="bi bi-plus"></i> New
+            <i className="bi bi-plus"></i> <span className="d-none d-sm-inline">New</span>
           </Button>
         </Col>
       </Row>
@@ -115,9 +127,19 @@ const GenericTable = ({
             <thead>
               <tr>
                 {columns.map((col, index) => (
-                  <th key={index}>{col.label}</th>
+                  <th 
+                    key={index} 
+                    style={{ cursor: "pointer" }} 
+                    onClick={() => handleSort(col.field)}
+                    className="text-nowrap"
+                  >
+                    {col.label}
+                    {sortField === col.field && (
+                      <i className={`bi bi-caret-${sortDir === "ASC" ? "up" : "down"}-fill ms-1`}></i>
+                    )}
+                  </th>
                 ))}
-                <th className="text-end">Actions</th>
+                <th className="text-end text-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -131,7 +153,7 @@ const GenericTable = ({
                 data.map((item) => (
                   <tr key={item.id}>
                     {columns.map((col, index) => (
-                      <td key={index} className="align-middle">
+                      <td key={index} className="align-middle text-nowrap">
                         {/* Nested properties can be accessed if field is e.g. "user.name" */}
                         {item[col.field]}
                       </td>
