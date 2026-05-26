@@ -24,9 +24,16 @@ const TicketsPage = () => {
     }
     
     // We also map ticket.user.email to author for display
+    let authorEmail = "Anonymous";
+    if (ticket.userDeleted) {
+      authorEmail = "user deleted";
+    } else if (ticket.user) {
+      authorEmail = ticket.user.email;
+    }
+
     return {
       ...ticket,
-      authorEmail: ticket.user ? ticket.user.email : "Anonymous",
+      authorEmail: authorEmail,
       isEditable
     };
   });

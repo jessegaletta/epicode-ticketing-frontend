@@ -123,7 +123,7 @@ const TicketDetail = () => {
 
       {!isNew && (
         <p className="text-muted mb-4">
-          <strong>Author:</strong> {ticket?.user?.email || "Anonymous"}
+          <strong>Author:</strong> {ticket?.userDeleted ? "user deleted" : (ticket?.user?.email || "Anonymous")}
         </p>
       )}
 
