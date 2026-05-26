@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { loginAction } from "../redux/actions";
-import Loading from "./Loading";
+import Loading from "../components/common/Loading";
 
 const Login = () => {
   const [formValues, setFormValues] = useState({ email: "", password: "" });

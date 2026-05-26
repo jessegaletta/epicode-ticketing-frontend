@@ -1,7 +1,7 @@
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import Loading from "./Loading";
-import Error from "./Error";
+import Loading from "../components/common/Loading";
+import Error from "../components/common/Error";
 // import { useSelector } from "react-redux";
 // import { useNavigate } from "react-router";
 // import { useDispatch } from "react-redux";

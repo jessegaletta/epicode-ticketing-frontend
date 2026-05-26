@@ -7,9 +7,9 @@ import {
   deleteTicketAction,
   clearTicketDetailAction,
 } from "../redux/actions/tickets";
-import Loading from "./Loading";
+import Loading from "../components/common/Loading";
 import { useNavigate, useParams, useLocation } from "react-router";
-import ConfirmModal from "./ConfirmModal";
+import ConfirmModal from "../components/common/ConfirmModal";
 
 const TicketDetail = () => {
   const dispatch = useDispatch();

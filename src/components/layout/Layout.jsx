@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import MyNavBar from "./MyNavBar";
 import MyFooter from "./MyFooter";
-import { fetchProfileAction } from "../redux/actions";
+import { fetchProfileAction } from "../../redux/actions";
 
 const Layout = function () {
   const dispatch = useDispatch();

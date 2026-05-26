@@ -17,10 +17,10 @@ import {
   saveUserAction,
   deleteUserAction,
 } from "../redux/actions";
-import Loading from "./Loading";
+import Loading from "../components/common/Loading";
 import { useTimezoneSelect, allTimezones } from "react-timezone-select";
 import { useNavigate, useParams, useLocation } from "react-router";
-import ConfirmModal from "./ConfirmModal";
+import ConfirmModal from "../components/common/ConfirmModal";
 
 const Profile = () => {
   const dispatch = useDispatch();

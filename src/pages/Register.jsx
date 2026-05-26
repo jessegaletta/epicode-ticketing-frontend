@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { registerAction, CLEAR_AUTH_MESSAGES } from "../redux/actions";
-import Loading from "./Loading";
-import PrivacyPolicyModal from "./PrivacyPolicyModal";
+import Loading from "../components/common/Loading";
+import PrivacyPolicyModal from "../components/common/PrivacyPolicyModal";
 
 const Register = () => {
   const [formValues, setFormValues] = useState({

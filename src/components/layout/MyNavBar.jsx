@@ -1,10 +1,10 @@
 import { Container, Dropdown, Nav, Navbar } from "react-bootstrap";
 import { NavLink, useLocation, useNavigate } from "react-router";
-import logo from "../assets/logo.png";
+import logo from "../../assets/logo.png";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutAction } from "../redux/actions";
+import { logoutAction } from "../../redux/actions";
 import { useState } from "react";
-import PrivacyPolicyModal from "./PrivacyPolicyModal";
+import PrivacyPolicyModal from "../common/PrivacyPolicyModal";
 
 function MyNavBar() {
   const location = useLocation();

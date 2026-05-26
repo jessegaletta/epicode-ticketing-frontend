@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import GenericTable from "./GenericTable";
+import GenericTable from "../components/common/GenericTable";
 import { fetchTicketsListAction } from "../redux/actions/tickets";
 
 const TicketsPage = () => {

@@ -1,16 +1,16 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import Main from "./components/Main";
+import Main from "./pages/Main";
 import { BrowserRouter as Router, Routes, Route } from "react-router";
-import NotFound from "./components/NotFound";
-import Layout from "./components/Layout";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import Profile from "./components/Profile";
-import AccessDenied from "./components/AccessDenied";
-import UsersPage from "./components/UsersPage";
-import TicketsPage from "./components/TicketsPage";
-import TicketDetail from "./components/TicketDetail";
+import NotFound from "./pages/NotFound";
+import Layout from "./components/layout/Layout";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Profile from "./pages/Profile";
+import AccessDenied from "./pages/AccessDenied";
+import UsersPage from "./pages/UsersPage";
+import TicketsPage from "./pages/TicketsPage";
+import TicketDetail from "./pages/TicketDetail";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 
