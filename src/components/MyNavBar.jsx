@@ -82,21 +82,12 @@ function MyNavBar() {
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav" className="flex-grow-1">
-          <Nav fill variant="pills" className="w-100 ms-lg-3">
-            <NavLink className="nav-link" to="/a">
-              a
+          <Nav fill variant="pills" className="w-100 mx-lg-4">
+            <NavLink className="nav-link" to="/users">
+              Users
             </NavLink>
-            <NavLink className="nav-link" to="/b">
-              b
-            </NavLink>
-            <NavLink className="nav-link" to="/c">
-              c
-            </NavLink>
-            <NavLink className="nav-link" to="/d">
-              d
-            </NavLink>
-            <NavLink className="nav-link" to="/e">
-              e
+            <NavLink className="nav-link" to="/tickets">
+              Tickets
             </NavLink>
           </Nav>
         </Navbar.Collapse>

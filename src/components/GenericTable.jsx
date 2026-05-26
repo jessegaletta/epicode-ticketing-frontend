@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Table, Button, Form, InputGroup, Pagination, Container, Row, Col, Spinner, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
 
 const GenericTable = ({
   columns,
@@ -17,6 +18,38 @@ const GenericTable = ({
   const [sortField, setSortField] = useState("id");
   const [sortDir, setSortDir] = useState("ASC");
   const navigate = useNavigate();
+
+  const settings = useSelector((state) => state.settings);
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date)) return dateString;
+
+    const tz = settings?.timezone || "UTC";
+    const dateFormat = settings?.dateFormat || "DD/MM/YYYY";
+    const timeFormat = settings?.timeFormat || "24h";
+
+    try {
+      const optionsDate = { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" };
+      const optionsTime = { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: timeFormat === "12h" };
+
+      const parts = new Intl.DateTimeFormat("en-US", optionsDate).formatToParts(date);
+      const m = parts.find(p => p.type === "month").value;
+      const d = parts.find(p => p.type === "day").value;
+      const y = parts.find(p => p.type === "year").value;
+      
+      let formattedDate = "";
+      if (dateFormat === "DD/MM/YYYY") formattedDate = `${d}/${m}/${y}`;
+      else if (dateFormat === "MM/DD/YYYY") formattedDate = `${m}/${d}/${y}`;
+      else if (dateFormat === "YYYY-MM-DD") formattedDate = `${y}-${m}-${d}`;
+
+      const formattedTime = new Intl.DateTimeFormat("en-US", optionsTime).format(date);
+      return `${formattedDate} ${formattedTime}`;
+    } catch (e) {
+      return dateString;
+    }
+  };
 
   // Handle access denied redirect
   useEffect(() => {
@@ -129,8 +162,7 @@ const GenericTable = ({
                   <tr key={item.id} onClick={() => handleOpen(item)} style={{ cursor: "pointer" }} className="table-row-clickable">
                     {columns.map((col, index) => (
                       <td key={index} className="align-middle text-nowrap">
-                        {/* Nested properties can be accessed if field is e.g. "user.name" */}
-                        {item[col.field]}
+                        {col.isDate ? formatDateTime(item[col.field]) : item[col.field]}
                       </td>
                     ))}
                   </tr>
