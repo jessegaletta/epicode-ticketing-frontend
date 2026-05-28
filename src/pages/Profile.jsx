@@ -17,6 +17,7 @@ import {
   saveUserAction,
   deleteUserAction,
 } from "../redux/actions";
+import { fetchBachelorsListAction } from "../redux/actions/bachelors";
 import Loading from "../components/common/Loading";
 import { useTimezoneSelect, allTimezones } from "react-timezone-select";
 import { useNavigate, useParams, useLocation } from "react-router";
@@ -41,8 +42,10 @@ const Profile = () => {
     loading: detailLoading,
     error: detailError,
   } = useSelector((state) => state.users?.detail || {});
+  const bachelors = useSelector((state) => state.bachelors?.list?.data || []);
 
-  const isMe = location.pathname === "/users/me" || (user && id && String(user.id) === id);
+  const isMe =
+    location.pathname === "/users/me" || (user && id && String(user.id) === id);
   const isNew = id === "new" || location.pathname === "/users/new";
   const isEditOther = id && id !== "new" && !isMe;
   const isReadOnly = isEditOther && !location.state?.editMode;
@@ -66,6 +69,7 @@ const Profile = () => {
     lastName: "",
     email: "",
     role: "USER",
+    bachelorId: "",
     darkMode: false,
     timezone: "Europe/Belgrade",
     dateFormat: "DD/MM/YYYY",
@@ -79,6 +83,10 @@ const Profile = () => {
       navigate("/login");
     }
   }, [token, navigate]);
+
+  useEffect(() => {
+    dispatch(fetchBachelorsListAction({ size: 100 }));
+  }, [dispatch]);
 
   useEffect(() => {
     return () => {
@@ -102,6 +110,7 @@ const Profile = () => {
         lastName: "",
         email: "",
         role: "USER",
+        bachelorId: "",
         darkMode: false,
         timezone: "Europe/Belgrade",
         dateFormat: "DD/MM/YYYY",
@@ -119,6 +128,7 @@ const Profile = () => {
         lastName: user.lastName || "",
         email: user.email || "",
         role: user.role || "USER",
+        bachelorId: user.bachelorId || "",
         darkMode: settings.darkMode || false,
         timezone: settings.timezone || "Europe/Belgrade",
         dateFormat: settings.dateFormat || "DD/MM/YYYY",
@@ -130,6 +140,7 @@ const Profile = () => {
         lastName: otherUser.lastName || "",
         email: otherUser.email || "",
         role: otherUser.role || "USER",
+        bachelorId: otherUser.bachelorId || "",
         darkMode: otherUser.darkMode || false,
         timezone: otherUser.timezone || "Europe/Belgrade",
         dateFormat: otherUser.dateFormat || "DD/MM/YYYY",
@@ -206,9 +217,7 @@ const Profile = () => {
     );
   }
 
-  const showRoleDropdown =
-    (isNew || isEditOther) &&
-    (user?.role === "ADMIN" || user?.role === "SUPERADMIN");
+  const showRoleDropdown = (isNew || isEditOther) && user?.role === "ADMIN";
 
   return (
     <Container className="py-5" style={{ maxWidth: "600px" }}>
@@ -286,6 +295,22 @@ const Profile = () => {
               />
             </FloatingLabel>
           </Form.Group>
+          <Form.Group as={Col} controlId="formBachelor">
+            <FloatingLabel label="Bachelor">
+              <Form.Select
+                name="bachelorId"
+                value={formValues.bachelorId}
+                onChange={handleInputChange}
+                disabled={isReadOnly}
+                required
+              >
+                <option value="" disabled>Select a bachelor</option>
+                {bachelors.map(b => (
+                  <option key={b.id} value={b.id}>{b.description}</option>
+                ))}
+              </Form.Select>
+            </FloatingLabel>
+          </Form.Group>
           {showRoleDropdown && (
             <Form.Group as={Col} controlId="formRole">
               <FloatingLabel label="Role">
@@ -296,8 +321,8 @@ const Profile = () => {
                   disabled={isReadOnly}
                 >
                   <option value="USER">User</option>
+                  <option value="FACULTY">Faculty</option>
                   <option value="ADMIN">Admin</option>
-                  <option value="SUPERADMIN">Superadmin</option>
                 </Form.Select>
               </FloatingLabel>
             </Form.Group>

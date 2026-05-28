@@ -11,6 +11,8 @@ import AccessDenied from "./pages/AccessDenied";
 import UsersPage from "./pages/UsersPage";
 import TicketsPage from "./pages/TicketsPage";
 import TicketDetail from "./pages/TicketDetail";
+import BachelorsPage from "./pages/BachelorsPage";
+import BachelorDetail from "./pages/BachelorDetail";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 
@@ -30,6 +32,9 @@ function App() {
             <Route path="/tickets" element={<TicketsPage />} />
             <Route path="/tickets/new" element={<TicketDetail />} />
             <Route path="/tickets/:id" element={<TicketDetail />} />
+            <Route path="/bachelors" element={<BachelorsPage />} />
+            <Route path="/bachelors/new" element={<BachelorDetail />} />
+            <Route path="/bachelors/:id" element={<BachelorDetail />} />
             <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="*" element={<NotFound />} />
           </Route>

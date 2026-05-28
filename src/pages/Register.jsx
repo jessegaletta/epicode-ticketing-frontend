@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { registerAction, CLEAR_AUTH_MESSAGES } from "../redux/actions";
+import { fetchBachelorsListAction } from "../redux/actions/bachelors";
 import Loading from "../components/common/Loading";
 import PrivacyPolicyModal from "../components/common/PrivacyPolicyModal";
 
@@ -13,6 +14,7 @@ const Register = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    bachelorId: "",
     acceptedTerms: false,
   });
   const [modalShow, setModalShow] = useState(false);
@@ -21,6 +23,11 @@ const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading, error: reduxError, successMessage } = useSelector(state => state.auth);
+  const bachelors = useSelector(state => state.bachelors?.list?.data || []);
+
+  useEffect(() => {
+    dispatch(fetchBachelorsListAction({ size: 100 })); // fetch all for dropdown
+  }, [dispatch]);
 
   useEffect(() => {
     if (successMessage === "Registration successful! Redirecting to login...") {
@@ -63,6 +70,7 @@ const Register = () => {
       lastName: formValues.lastName,
       email: formValues.email,
       password: formValues.password,
+      bachelorId: formValues.bachelorId,
     }));
   };
 
@@ -156,6 +164,24 @@ const Register = () => {
               onChange={handleInputChange}
               required
             />
+          </FloatingLabel>
+
+          <FloatingLabel
+            controlId="floatingBachelor"
+            label="Bachelor"
+            className="mb-3"
+          >
+            <Form.Select
+              name="bachelorId"
+              value={formValues.bachelorId}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="" disabled>Select a bachelor</option>
+              {bachelors.map(b => (
+                <option key={b.id} value={b.id}>{b.description}</option>
+              ))}
+            </Form.Select>
           </FloatingLabel>
 
           <Form.Group className="mb-4" controlId="formBasicCheckbox">
