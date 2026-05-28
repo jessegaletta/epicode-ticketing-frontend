@@ -33,6 +33,9 @@ const TicketsPage = () => {
       authorEmail = "user deleted";
     } else if (ticket.user) {
       authorEmail = ticket.user.email;
+      if (ticket.authorBachelorDescription) {
+        authorEmail += ` (${ticket.authorBachelorDescription})`;
+      }
     }
 
     return {

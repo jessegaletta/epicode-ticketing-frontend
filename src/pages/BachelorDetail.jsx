@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { Container, Form, Button, Alert, FloatingLabel, Spinner } from "react-bootstrap";
+import { Container, Form, Button, Alert, FloatingLabel } from "react-bootstrap";
 import { fetchBachelorDetailAction, clearBachelorDetailAction, saveBachelorAction, deleteBachelorAction } from "../redux/actions/bachelors";
+import Loading from "../components/common/Loading";
+import ConfirmModal from "../components/common/ConfirmModal";
 
 const BachelorDetail = () => {
   const { id } = useParams();
@@ -10,36 +12,44 @@ const BachelorDetail = () => {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  const isEditingParam = id !== "new";
-  // If the user arrived here from GenericTable with isEditable=false, they can only view.
-  // We'll enforce actual auth checks on the backend anyway.
-  const isEditable = isEditingParam ? location.state?.editMode !== false : true;
+  const isNew = id === "new" || location.pathname === "/bachelors/new" || !id;
+  const { data: bachelorData, loading, error } = useSelector((state) => state.bachelors?.detail || {});
+  const loggedInUser = useSelector((state) => state.auth?.user);
+
+  const canEdit = loggedInUser && (loggedInUser.role === "ADMIN" || loggedInUser.role === "FACULTY");
+  const isReadOnly = !isNew && !canEdit;
+
+  useEffect(() => {
+    if (!canEdit) {
+      navigate("/access-denied");
+    }
+  }, [canEdit, navigate]);
 
   const [formValues, setFormValues] = useState({
     description: "",
   });
 
-  const { data: bachelorData, loading, error } = useSelector((state) => state.bachelors.detail);
-  const loggedInUser = useSelector((state) => state.auth?.user);
-
-  const canEdit = loggedInUser && (loggedInUser.role === "ADMIN" || loggedInUser.role === "FACULTY");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [localError, setLocalError] = useState("");
 
   useEffect(() => {
-    if (isEditingParam) {
+    if (isNew) {
+      setFormValues({
+        description: "",
+      });
+      dispatch(clearBachelorDetailAction());
+    } else {
       dispatch(fetchBachelorDetailAction(id));
     }
-    return () => {
-      dispatch(clearBachelorDetailAction());
-    };
-  }, [dispatch, id, isEditingParam]);
+  }, [id, isNew, dispatch]);
 
   useEffect(() => {
-    if (bachelorData && isEditingParam) {
+    if (!isNew && bachelorData) {
       setFormValues({
         description: bachelorData.description || "",
       });
     }
-  }, [bachelorData, isEditingParam]);
+  }, [isNew, bachelorData]);
 
   const handleChange = (e) => {
     setFormValues({
@@ -48,64 +58,109 @@ const BachelorDetail = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canEdit) return;
-    dispatch(saveBachelorAction(id, formValues, isEditingParam));
-    navigate("/bachelors");
-  };
-
-  const handleDelete = () => {
-    if (!canEdit) return;
-    if (window.confirm("Are you sure you want to delete this bachelor?")) {
-      dispatch(deleteBachelorAction(id));
+    setLocalError("");
+    try {
+      await dispatch(saveBachelorAction(id, formValues, !isNew));
       navigate("/bachelors");
+    } catch (err) {
+      setLocalError(err.message || "Failed to save bachelor");
     }
   };
 
-  if (loading) {
+  const handleDelete = async () => {
+    if (!canEdit) return;
+    try {
+      await dispatch(deleteBachelorAction(id));
+      navigate("/bachelors");
+    } catch (err) {
+      setLocalError(err.message || "Failed to delete bachelor");
+    }
+    setShowDeleteModal(false);
+  };
+
+  if (loading || (!isNew && !bachelorData && !error)) {
     return (
-      <Container className="my-5 text-center">
-        <Spinner animation="border" />
+      <Container className="text-center py-5">
+        <Loading />
       </Container>
     );
   }
 
   return (
-    <Container className="my-4" style={{ maxWidth: "600px" }}>
-      <h2>{isEditingParam ? (canEdit ? "Edit Bachelor" : "View Bachelor") : "New Bachelor"}</h2>
-      {error && <Alert variant="danger">{error}</Alert>}
-      
-      <Form onSubmit={handleSubmit} className="mt-4">
-        <FloatingLabel label="Description" className="mb-3">
-          <Form.Control
-            type="text"
-            name="description"
-            value={formValues.description}
-            onChange={handleChange}
-            readOnly={!canEdit}
-            required
-          />
-        </FloatingLabel>
+    <Container className="py-5" style={{ maxWidth: "600px" }}>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+          {isNew
+            ? "Create New Bachelor"
+            : isReadOnly
+              ? "Bachelor Details"
+              : "Edit Bachelor"}
+        </h2>
+        <Button
+          variant="outline-secondary"
+          onClick={() => navigate("/bachelors")}
+        >
+          <i className="bi bi-arrow-left"></i> Back to List
+        </Button>
+      </div>
 
-        <div className="d-flex justify-content-between">
-          <Button variant="secondary" onClick={() => navigate("/bachelors")}>
-            Back
+      {(localError || error) && (
+        <Alert variant="danger">{localError || error}</Alert>
+      )}
+
+      <Form onSubmit={handleSubmit}>
+        <Form.Group className="mb-3" controlId="formDescription">
+          <FloatingLabel label="Description">
+            <Form.Control
+              type="text"
+              name="description"
+              placeholder="Description"
+              value={formValues.description}
+              onChange={handleChange}
+              readOnly={isReadOnly}
+              required
+            />
+          </FloatingLabel>
+        </Form.Group>
+
+        {!isReadOnly && (
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={loading}
+            className="w-100 mb-3"
+          >
+            {loading ? <Loading /> : isNew ? "Create Bachelor" : "Save Changes"}
           </Button>
-          {canEdit && (
-            <div>
-              {isEditingParam && (
-                <Button variant="danger" className="me-2" onClick={handleDelete}>
-                  Delete
-                </Button>
-              )}
-              <Button variant="primary" type="submit">
-                {isEditingParam ? "Update" : "Create"}
-              </Button>
-            </div>
-          )}
-        </div>
+        )}
       </Form>
+
+      {!isNew && !isReadOnly && (
+        <>
+          <hr className="my-4" />
+          <h4 className="mb-3 text-danger">Danger Zone</h4>
+          <Button
+            variant="outline-danger"
+            onClick={() => setShowDeleteModal(true)}
+          >
+            Delete Bachelor
+          </Button>
+
+          <ConfirmModal
+            show={showDeleteModal}
+            onHide={() => setShowDeleteModal(false)}
+            onConfirm={handleDelete}
+            title="Delete Bachelor"
+            message="Are you sure you want to delete this bachelor? This action cannot be undone."
+            confirmText="Delete Bachelor"
+            cancelText="Close"
+            confirmVariant="danger"
+          />
+        </>
+      )}
     </Container>
   );
 };

@@ -83,11 +83,14 @@ function MyNavBar() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav" className="flex-grow-1">
           <Nav fill variant="pills" className="w-100 mx-lg-4">
-            <NavLink className="nav-link" to="/users">
-              Users
-            </NavLink>
             <NavLink className="nav-link" to="/tickets">
               Tickets
+            </NavLink>
+            <NavLink className="nav-link" to="/bachelors">
+              Bachelors
+            </NavLink>
+            <NavLink className="nav-link" to="/users">
+              Users
             </NavLink>
           </Nav>
         </Navbar.Collapse>

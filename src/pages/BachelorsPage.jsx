@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
 import GenericTable from "../components/common/GenericTable";
 import { fetchBachelorsListAction } from "../redux/actions/bachelors";
 
 const BachelorsPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const rawBachelors = useSelector((state) => state.bachelors?.list?.data || []);
   const isLoading = useSelector(
@@ -15,6 +17,19 @@ const BachelorsPage = () => {
     (state) => state.bachelors?.list?.totalPages || 1,
   );
   const loggedInUser = useSelector((state) => state.auth?.user);
+  const token = useSelector((state) => state.auth?.token);
+
+  useEffect(() => {
+    // If there's a token but the user profile hasn't loaded yet, wait.
+    if (token && !loggedInUser) {
+      return;
+    }
+    
+    // If no token, or user profile is loaded but doesn't have correct permissions, redirect.
+    if (!loggedInUser || (loggedInUser.role !== "ADMIN" && loggedInUser.role !== "FACULTY")) {
+      navigate("/access-denied");
+    }
+  }, [loggedInUser, token, navigate]);
 
   // Compute isEditable so GenericTable can allow navigating in edit mode
   const bachelorsArray = rawBachelors.map((bachelor) => {
