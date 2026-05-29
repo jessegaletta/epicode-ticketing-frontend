@@ -6,13 +6,15 @@ import NotFound from "./pages/NotFound";
 import Layout from "./components/layout/Layout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Profile from "./pages/Profile";
+import UserDetail from "./pages/UserDetail";
 import AccessDenied from "./pages/AccessDenied";
 import UsersPage from "./pages/UsersPage";
 import TicketsPage from "./pages/TicketsPage";
 import TicketDetail from "./pages/TicketDetail";
 import BachelorsPage from "./pages/BachelorsPage";
 import BachelorDetail from "./pages/BachelorDetail";
+import CoursesPage from "./pages/CoursesPage";
+import CourseDetail from "./pages/CourseDetail";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 
@@ -25,16 +27,19 @@ function App() {
             <Route path="/" element={<Main />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/users/me" element={<Profile />} />
+            <Route path="/users/me" element={<UserDetail />} />
             <Route path="/users" element={<UsersPage />} />
-            <Route path="/users/new" element={<Profile />} />
-            <Route path="/users/:id" element={<Profile />} />
+            <Route path="/users/new" element={<UserDetail />} />
+            <Route path="/users/:id" element={<UserDetail />} />
             <Route path="/tickets" element={<TicketsPage />} />
             <Route path="/tickets/new" element={<TicketDetail />} />
             <Route path="/tickets/:id" element={<TicketDetail />} />
             <Route path="/bachelors" element={<BachelorsPage />} />
             <Route path="/bachelors/new" element={<BachelorDetail />} />
             <Route path="/bachelors/:id" element={<BachelorDetail />} />
+            <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/courses/new" element={<CourseDetail />} />
+            <Route path="/courses/:id" element={<CourseDetail />} />
             <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="*" element={<NotFound />} />
           </Route>

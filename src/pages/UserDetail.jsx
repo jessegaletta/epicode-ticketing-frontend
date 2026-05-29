@@ -23,7 +23,7 @@ import { useTimezoneSelect, allTimezones } from "react-timezone-select";
 import { useNavigate, useParams, useLocation } from "react-router";
 import ConfirmModal from "../components/common/ConfirmModal";
 
-const Profile = () => {
+const UserDetail = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -68,7 +68,7 @@ const Profile = () => {
     firstName: "",
     lastName: "",
     email: "",
-    role: "USER",
+    role: "STUDENT",
     bachelorId: "",
     darkMode: false,
     timezone: "Europe/Belgrade",
@@ -109,7 +109,7 @@ const Profile = () => {
         firstName: "",
         lastName: "",
         email: "",
-        role: "USER",
+        role: "STUDENT",
         bachelorId: "",
         darkMode: false,
         timezone: "Europe/Belgrade",
@@ -127,7 +127,7 @@ const Profile = () => {
         firstName: user.firstName || "",
         lastName: user.lastName || "",
         email: user.email || "",
-        role: user.role || "USER",
+        role: user.role || "STUDENT",
         bachelorId: user.bachelorId || "",
         darkMode: settings.darkMode || false,
         timezone: settings.timezone || "Europe/Belgrade",
@@ -139,7 +139,7 @@ const Profile = () => {
         firstName: otherUser.firstName || "",
         lastName: otherUser.lastName || "",
         email: otherUser.email || "",
-        role: otherUser.role || "USER",
+        role: otherUser.role || "STUDENT",
         bachelorId: otherUser.bachelorId || "",
         darkMode: otherUser.darkMode || false,
         timezone: otherUser.timezone || "Europe/Belgrade",
@@ -295,22 +295,8 @@ const Profile = () => {
               />
             </FloatingLabel>
           </Form.Group>
-          <Form.Group as={Col} controlId="formBachelor">
-            <FloatingLabel label="Bachelor">
-              <Form.Select
-                name="bachelorId"
-                value={formValues.bachelorId}
-                onChange={handleInputChange}
-                disabled={isReadOnly}
-                required
-              >
-                <option value="" disabled>Select a bachelor</option>
-                {bachelors.map(b => (
-                  <option key={b.id} value={b.id}>{b.description}</option>
-                ))}
-              </Form.Select>
-            </FloatingLabel>
-          </Form.Group>
+        </Row>
+        <Row className="mb-3">
           {showRoleDropdown && (
             <Form.Group as={Col} controlId="formRole">
               <FloatingLabel label="Role">
@@ -320,9 +306,27 @@ const Profile = () => {
                   onChange={handleInputChange}
                   disabled={isReadOnly}
                 >
-                  <option value="USER">User</option>
+                  <option value="STUDENT">Student</option>
                   <option value="FACULTY">Faculty</option>
                   <option value="ADMIN">Admin</option>
+                </Form.Select>
+              </FloatingLabel>
+            </Form.Group>
+          )}
+          {formValues.role === "STUDENT" && (
+            <Form.Group as={Col} controlId="formBachelor">
+              <FloatingLabel label="Bachelor">
+                <Form.Select
+                  name="bachelorId"
+                  value={formValues.bachelorId}
+                  onChange={handleInputChange}
+                  disabled={isReadOnly}
+                  required
+                >
+                  <option value="" disabled>Select a bachelor</option>
+                  {bachelors.map(b => (
+                    <option key={b.id} value={b.id}>{b.description}</option>
+                  ))}
                 </Form.Select>
               </FloatingLabel>
             </Form.Group>
@@ -486,4 +490,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default UserDetail;

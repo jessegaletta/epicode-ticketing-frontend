@@ -89,6 +89,9 @@ function MyNavBar() {
             <NavLink className="nav-link" to="/bachelors">
               Bachelors
             </NavLink>
+            <NavLink className="nav-link" to="/courses">
+              Courses
+            </NavLink>
             <NavLink className="nav-link" to="/users">
               Users
             </NavLink>
