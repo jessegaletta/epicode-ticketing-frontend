@@ -99,7 +99,6 @@ export const saveBachelorAction = (id, bachelorData, isEditing) => {
     });
     
     if(response.ok || response.status === 201) {
-      alert(isEditing ? "Bachelor updated" : "Bachelor created");
       dispatch(fetchBachelorsListAction());
     } else {
       let errMessage = "Error during save";
@@ -108,7 +107,6 @@ export const saveBachelorAction = (id, bachelorData, isEditing) => {
         if (err.message) errMessage = err.message;
         else if (err.errorsList) errMessage = err.errorsList.join(", ");
       } catch (e) {}
-      alert(errMessage);
       throw new Error(errMessage);
     }
   };
@@ -129,7 +127,6 @@ export const deleteBachelorAction = (id) => {
         const err = await response.json();
         errMessage = err.message || errMessage;
       } catch (e) {}
-      alert(errMessage);
       throw new Error(errMessage);
     }
     dispatch(fetchBachelorsListAction());

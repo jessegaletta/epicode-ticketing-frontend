@@ -149,10 +149,15 @@ export const deleteAccountAction = (token, navigate) => {
       if (response.ok) {
         dispatch(logoutAction(navigate));
       } else {
-        dispatch({ type: DELETE_ACCOUNT_ERROR, payload: "Failed to delete account" });
+        let errMessage = "Failed to delete account";
+        try {
+          const err = await response.json();
+          errMessage = err.message || errMessage;
+        } catch (e) {}
+        dispatch({ type: DELETE_ACCOUNT_ERROR, payload: errMessage });
       }
     } catch (err) {
-      dispatch({ type: DELETE_ACCOUNT_ERROR, payload: "An error occurred while deleting account." });
+      dispatch({ type: DELETE_ACCOUNT_ERROR, payload: err.message || "An error occurred while deleting account." });
     }
   };
 };

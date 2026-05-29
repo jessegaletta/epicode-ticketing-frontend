@@ -93,15 +93,14 @@ export const saveUserAction = (id, userData, isEditing, navigate) => {
         body: JSON.stringify(userData)
       });
       
-      if(response.ok || response.status === 201) {
-        alert(isEditing ? "User updated" : "User created");
+      if (response.ok || response.status === 201) {
         navigate("/users");
       } else {
         const err = await response.json();
-        alert(err.message || "Error during save");
+        throw new Error(err.message || "Error during save");
       }
     } catch (e) {
-      alert("Network error or server unreachable");
+      throw new Error(e.message || "Network error or server unreachable");
     }
   }
 };

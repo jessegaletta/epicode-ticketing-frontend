@@ -98,15 +98,14 @@ export const saveTicketAction = (id, ticketData, isEditing, navigate) => {
         body: JSON.stringify(ticketData)
       });
       
-      if(response.ok || response.status === 201) {
-        alert(isEditing ? "Ticket updated" : "Ticket created");
+      if (response.ok || response.status === 201) {
         navigate("/tickets");
       } else {
         const err = await response.json();
-        alert(err.message || "Error during save");
+        throw new Error(err.message || "Error during save");
       }
     } catch (e) {
-      alert("Network error or server unreachable");
+      throw new Error(e.message || "Network error or server unreachable");
     }
   }
 };

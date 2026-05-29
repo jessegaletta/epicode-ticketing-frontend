@@ -98,7 +98,6 @@ export const saveCourseAction = (id, courseData, isEditing) => {
     });
     
     if(response.ok || response.status === 201) {
-      alert(isEditing ? "Course updated" : "Course created");
       dispatch(fetchCoursesListAction());
     } else {
       let errMessage = "Error during save";
@@ -107,7 +106,6 @@ export const saveCourseAction = (id, courseData, isEditing) => {
         if (err.message) errMessage = err.message;
         else if (err.errorsList) errMessage = err.errorsList.join(", ");
       } catch (e) {}
-      alert(errMessage);
       throw new Error(errMessage);
     }
   };
@@ -128,7 +126,6 @@ export const deleteCourseAction = (id) => {
         const err = await response.json();
         errMessage = err.message || errMessage;
       } catch (e) {}
-      alert(errMessage);
       throw new Error(errMessage);
     }
     dispatch(fetchCoursesListAction());
