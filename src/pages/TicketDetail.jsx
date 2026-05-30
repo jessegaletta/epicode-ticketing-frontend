@@ -7,6 +7,13 @@ import {
   deleteTicketAction,
   clearTicketDetailAction,
 } from "../redux/actions/tickets";
+import {
+  fetchActivitiesAction,
+  createActivityAction,
+  updateActivityAction,
+  deleteActivityAction,
+  clearActivitiesAction,
+} from "../redux/actions/activities";
 import Loading from "../components/common/Loading";
 import { useNavigate, useParams, useLocation } from "react-router";
 import ConfirmModal from "../components/common/ConfirmModal";
@@ -23,10 +30,53 @@ const TicketDetail = () => {
     loading,
     error,
   } = useSelector((state) => state.tickets?.detail || {});
+  const { data: activities, loading: activitiesLoading } = useSelector(
+    (state) => state.activities || { data: [], loading: false }
+  );
   const { user: loggedInUser, isLoggedIn } = useSelector((state) => state.auth);
+  const settings = useSelector((state) => state.settings);
 
-  // We can edit if it's new, or if the user has editMode from the table row click.
-  const isReadOnly = !isNew && !location.state?.editMode;
+  let ticketIsEditable = false;
+  if (ticket && loggedInUser) {
+    if (loggedInUser.role === "ADMIN") {
+      ticketIsEditable = true;
+    } else if (ticket.user && ticket.user.id === loggedInUser.id) {
+      ticketIsEditable = true;
+    }
+  }
+
+  // We can edit if it's new, or if the user has editMode from the table row click, or computed ticketIsEditable.
+  const isReadOnly = !isNew && !ticketIsEditable && !location.state?.editMode;
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date)) return dateString;
+
+    const tz = settings?.timezone || "UTC";
+    const dateFormat = settings?.dateFormat || "DD/MM/YYYY";
+    const timeFormat = settings?.timeFormat || "24h";
+
+    try {
+      const optionsDate = { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" };
+      const optionsTime = { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: timeFormat === "12h" };
+
+      const parts = new Intl.DateTimeFormat("en-US", optionsDate).formatToParts(date);
+      const m = parts.find(p => p.type === "month").value;
+      const d = parts.find(p => p.type === "day").value;
+      const y = parts.find(p => p.type === "year").value;
+      
+      let formattedDate = "";
+      if (dateFormat === "DD/MM/YYYY") formattedDate = `${d}/${m}/${y}`;
+      else if (dateFormat === "MM/DD/YYYY") formattedDate = `${m}/${d}/${y}`;
+      else if (dateFormat === "YYYY-MM-DD") formattedDate = `${y}-${m}-${d}`;
+
+      const formattedTime = new Intl.DateTimeFormat("en-US", optionsTime).format(date);
+      return `${formattedDate} ${formattedTime}`;
+    } catch (e) {
+      return dateString;
+    }
+  };
 
   const [formValues, setFormValues] = useState({
     title: "",
@@ -38,6 +88,15 @@ const TicketDetail = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [localError, setLocalError] = useState("");
 
+  // Activity States
+  const [newActivityText, setNewActivityText] = useState("");
+  const [newActivityAnonymous, setNewActivityAnonymous] = useState(false);
+  const [editingActivityId, setEditingActivityId] = useState(null);
+  const [editingActivityText, setEditingActivityText] = useState("");
+  const [showActivityDeleteModal, setShowActivityDeleteModal] = useState(false);
+  const [activityToDelete, setActivityToDelete] = useState(null);
+  const [showAddActivityForm, setShowAddActivityForm] = useState(false);
+
   useEffect(() => {
     if (isNew) {
       setFormValues({
@@ -47,8 +106,10 @@ const TicketDetail = () => {
         isAnonymous: false,
       });
       dispatch(clearTicketDetailAction());
+      dispatch(clearActivitiesAction());
     } else {
       dispatch(fetchTicketDetailAction(id));
+      dispatch(fetchActivitiesAction(id));
     }
   }, [id, isNew, dispatch]);
 
@@ -93,6 +154,50 @@ const TicketDetail = () => {
       setLocalError(e.message || "Failed to delete ticket");
     }
     setShowDeleteModal(false);
+  };
+
+  const handleCreateActivity = async (e) => {
+    e.preventDefault();
+    if (!newActivityText.trim()) return;
+    try {
+      let isAnon = newActivityAnonymous;
+      if (!isLoggedIn) {
+        isAnon = true;
+      }
+      await dispatch(createActivityAction(id, { text: newActivityText, isAnonymous: isAnon }));
+      setNewActivityText("");
+      setNewActivityAnonymous(false);
+      setShowAddActivityForm(false);
+    } catch (err) {
+      setLocalError(err.message || "Failed to create activity");
+    }
+  };
+
+  const handleUpdateActivity = async (activityId) => {
+    if (!editingActivityText.trim()) return;
+    try {
+      await dispatch(updateActivityAction(activityId, { text: editingActivityText }));
+      setEditingActivityId(null);
+      setEditingActivityText("");
+    } catch (err) {
+      setLocalError(err.message || "Failed to update activity");
+    }
+  };
+
+  const confirmDeleteActivity = (activityId) => {
+    setActivityToDelete(activityId);
+    setShowActivityDeleteModal(true);
+  };
+
+  const executeDeleteActivity = async () => {
+    if (!activityToDelete) return;
+    try {
+      await dispatch(deleteActivityAction(activityToDelete));
+      setShowActivityDeleteModal(false);
+      setActivityToDelete(null);
+    } catch (err) {
+      setLocalError(err.message || "Failed to delete activity");
+    }
   };
 
   if (loading || (!isNew && !ticket && !error)) {
@@ -232,6 +337,167 @@ const TicketDetail = () => {
           />
         </>
       )}
+
+      {!isNew && (
+        <>
+          <hr className="my-5" />
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h3 className="mb-0">Activities</h3>
+            {!showAddActivityForm && (
+              <Button variant="primary" size="sm" onClick={() => setShowAddActivityForm(true)}>
+                <i className="bi bi-plus-lg"></i> Add Activity
+              </Button>
+            )}
+          </div>
+          
+          {showAddActivityForm && (
+            <div className="mb-4 p-3 bg-body-tertiary border rounded shadow-sm">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="mb-0">Add an Activity</h5>
+                <Button variant="close" onClick={() => setShowAddActivityForm(false)} aria-label="Close"></Button>
+              </div>
+              <Form onSubmit={handleCreateActivity}>
+              <Form.Group className="mb-3" controlId="formNewActivity">
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  placeholder="Write your activity/comment here..."
+                  value={newActivityText}
+                  onChange={(e) => setNewActivityText(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              {isLoggedIn && (
+                <Form.Group className="mb-3" controlId="formAnonActivity">
+                  <Form.Check
+                    type="switch"
+                    label="Post Anonymously"
+                    checked={newActivityAnonymous}
+                    onChange={(e) => setNewActivityAnonymous(e.target.checked)}
+                  />
+                </Form.Group>
+              )}
+              {!isLoggedIn && (
+                <Alert variant="info" className="py-2 mb-3">You are posting as an anonymous user.</Alert>
+              )}
+              <Button type="submit" variant="primary" size="sm" disabled={activitiesLoading}>
+                {activitiesLoading ? "Posting..." : "Post Activity"}
+              </Button>
+            </Form>
+          </div>
+          )}
+
+          {activitiesLoading && activities.length === 0 ? (
+            <Loading />
+          ) : activities.length === 0 ? (
+            <p className="text-muted">No activities yet.</p>
+          ) : (
+            <div className="d-flex flex-column gap-3">
+              {activities.map(activity => {
+                let isEditable = false;
+                if (loggedInUser) {
+                  if (loggedInUser.role === "ADMIN") {
+                    isEditable = true;
+                  } else if (activity.user && activity.user.id === loggedInUser.id) {
+                    isEditable = true;
+                  }
+                }
+
+                const authorDisplay = activity.userDeleted 
+                  ? "user deleted" 
+                  : (activity.user && activity.user.email 
+                      ? `${activity.user.email}${activity.authorBachelorDescription ? ` (${activity.authorBachelorDescription})` : ""}` 
+                      : "Anonymous");
+
+                const dateDisplay = formatDateTime(activity.createdAt);
+
+                return (
+                  <div key={activity.id} className="card shadow-sm border-0 mb-3">
+                    <div className="card-header d-flex justify-content-between align-items-center bg-body-tertiary border-bottom-0">
+                      <div>
+                        <strong>{authorDisplay}</strong>
+                        <span className="text-muted ms-2" style={{ fontSize: "0.85em" }}>{dateDisplay}</span>
+                      </div>
+                      {isEditable && (
+                        <div>
+                          <Button 
+                            variant="link" 
+                            size="sm" 
+                            className="p-0 text-decoration-none me-3"
+                            onClick={() => {
+                              if (editingActivityId === activity.id) {
+                                setEditingActivityId(null);
+                              } else {
+                                setEditingActivityId(activity.id);
+                                setEditingActivityText(activity.text);
+                              }
+                            }}
+                          >
+                            <i className="bi bi-pencil"></i> Edit
+                          </Button>
+                          <Button 
+                            variant="link" 
+                            size="sm" 
+                            className="p-0 text-decoration-none text-danger"
+                            onClick={() => confirmDeleteActivity(activity.id)}
+                          >
+                            <i className="bi bi-trash"></i> Delete
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <div className="card-body">
+                      {editingActivityId === activity.id ? (
+                        <div className="d-flex flex-column gap-2">
+                          <Form.Control
+                            as="textarea"
+                            rows={3}
+                            value={editingActivityText}
+                            onChange={(e) => setEditingActivityText(e.target.value)}
+                          />
+                          <div>
+                            <Button 
+                              variant="success" 
+                              size="sm" 
+                              className="me-2"
+                              onClick={() => handleUpdateActivity(activity.id)}
+                            >
+                              Save
+                            </Button>
+                            <Button 
+                              variant="secondary" 
+                              size="sm"
+                              onClick={() => setEditingActivityId(null)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="card-text" style={{ whiteSpace: "pre-wrap" }}>{activity.text}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+
+      <ConfirmModal
+        show={showActivityDeleteModal}
+        onHide={() => {
+          setShowActivityDeleteModal(false);
+          setActivityToDelete(null);
+        }}
+        onConfirm={executeDeleteActivity}
+        title="Delete Activity"
+        message="Are you sure you want to delete this activity? This action cannot be undone."
+        confirmText="Delete Activity"
+        cancelText="Cancel"
+        confirmVariant="danger"
+      />
     </Container>
   );
 };

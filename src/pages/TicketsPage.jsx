@@ -53,7 +53,7 @@ const TicketsPage = () => {
     { field: "id", label: "ID" },
     { field: "title", label: "Title" },
     { field: "status", label: "Status" },
-    { field: "authorEmail", label: "Author" },
+    { field: "authorEmail", label: "Author", sortField: "user.email" },
     { field: "createdAt", label: "Created At", isDate: true },
   ];
 

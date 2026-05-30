@@ -135,19 +135,22 @@ const GenericTable = ({
           <Table responsive striped hover className="mb-4">
             <thead>
               <tr>
-                {columns.map((col, index) => (
-                  <th 
-                    key={index} 
-                    style={{ cursor: "pointer" }} 
-                    onClick={() => handleSort(col.field)}
-                    className="text-nowrap"
-                  >
-                    {col.label}
-                    {sortField === col.field && (
-                      <i className={`bi bi-caret-${sortDir === "ASC" ? "up" : "down"}-fill ms-1`}></i>
-                    )}
-                  </th>
-                ))}
+                {columns.map((col, index) => {
+                  const currentSortField = col.sortField || col.field;
+                  return (
+                    <th 
+                      key={index} 
+                      style={{ cursor: "pointer" }} 
+                      onClick={() => handleSort(currentSortField)}
+                      className="text-nowrap"
+                    >
+                      {col.label}
+                      {sortField === currentSortField && (
+                        <i className={`bi bi-caret-${sortDir === "ASC" ? "up" : "down"}-fill ms-1`}></i>
+                      )}
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>

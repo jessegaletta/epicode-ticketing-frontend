@@ -34,9 +34,13 @@ const CoursesPage = () => {
     if (loggedInUser && (loggedInUser.role === "ADMIN" || loggedInUser.role === "FACULTY")) {
       isEditable = true;
     }
+    const bachelorsStr = course.bachelors && course.bachelors.length > 0
+      ? course.bachelors.map(b => b.description).sort().join(" / ")
+      : "";
     return {
       ...course,
       isEditable,
+      displayDescription: bachelorsStr ? `${course.description} (${bachelorsStr})` : course.description
     };
   });
 
@@ -46,7 +50,7 @@ const CoursesPage = () => {
 
   const columns = [
     { field: "id", label: "ID" },
-    { field: "description", label: "Description" },
+    { field: "displayDescription", label: "Description", sortField: "description" },
   ];
 
   return (

@@ -5,6 +5,7 @@ import usersReducer from "../reducers/usersReducer";
 import ticketsReducer from "../reducers/ticketsReducer";
 import bachelorsReducer from "../reducers/bachelorsReducer";
 import coursesReducer from "../reducers/coursesReducer";
+import activitiesReducer from "../reducers/activitiesReducer";
 import { LOGOUT, LOGIN_START } from "../actions/auth";
 
 const appReducer = combineReducers({
@@ -14,6 +15,7 @@ const appReducer = combineReducers({
   tickets: ticketsReducer,
   bachelors: bachelorsReducer,
   courses: coursesReducer,
+  activities: activitiesReducer,
 });
 
 const rootReducer = (state, action) => {
