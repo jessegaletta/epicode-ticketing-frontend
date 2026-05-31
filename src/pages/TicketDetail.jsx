@@ -15,6 +15,7 @@ import {
   deleteActivityAction,
   clearActivitiesAction,
 } from "../redux/actions/activities";
+import { fetchAllCoursesAction } from "../redux/actions/courses";
 import Loading from "../components/common/Loading";
 import { useNavigate, useParams, useLocation } from "react-router";
 import ConfirmModal from "../components/common/ConfirmModal";
@@ -34,6 +35,7 @@ const TicketDetail = () => {
   const { data: activities, loading: activitiesLoading } = useSelector(
     (state) => state.activities || { data: [], loading: false }
   );
+  const { data: courses } = useSelector((state) => state.courses?.allList || { data: [] });
   const { user: loggedInUser, isLoggedIn } = useSelector((state) => state.auth);
   const settings = useSelector((state) => state.settings);
 
@@ -83,6 +85,13 @@ const TicketDetail = () => {
     title: "",
     description: "",
     isAnonymous: false,
+    category: "ERROR",
+    courseId: "",
+    moduleName: "",
+    lessonName: "",
+    expectedBenefit: "",
+    requestType: "DIDACTIC",
+    isFaqCandidate: false
   });
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -103,11 +112,19 @@ const TicketDetail = () => {
   const [statusComment, setStatusComment] = useState("");
 
   useEffect(() => {
+    dispatch(fetchAllCoursesAction());
     if (isNew) {
       setFormValues({
         title: "",
         description: "",
         isAnonymous: false,
+        category: "ERROR",
+        courseId: "",
+        moduleName: "",
+        lessonName: "",
+        expectedBenefit: "",
+        requestType: "DIDACTIC",
+        isFaqCandidate: false
       });
       dispatch(clearTicketDetailAction());
       dispatch(clearActivitiesAction());
@@ -123,6 +140,13 @@ const TicketDetail = () => {
         title: ticket.title || "",
         description: ticket.description || "",
         isAnonymous: ticket.user === null,
+        category: ticket.category || "ERROR",
+        courseId: ticket.course?.id || "",
+        moduleName: ticket.moduleName || "",
+        lessonName: ticket.lessonName || "",
+        expectedBenefit: ticket.expectedBenefit || "",
+        requestType: ticket.requestType || "DIDACTIC",
+        isFaqCandidate: ticket.isFaqCandidate || false
       });
       setNewStatus(ticket.status || "OPEN");
     }
@@ -289,6 +313,120 @@ const TicketDetail = () => {
             />
           </FloatingLabel>
         </Form.Group>
+
+        {isNew && (
+          <Form.Group className="mb-3" controlId="formCategory">
+            <Form.Label>Category</Form.Label>
+            <Form.Select
+              name="category"
+              value={formValues.category}
+              onChange={handleInputChange}
+              disabled={isReadOnly}
+            >
+              <option value="ERROR">Error</option>
+              <option value="SUGGESTION">Suggestion</option>
+              <option value="REQUEST">Request</option>
+              <option value="DOUBT">Doubt</option>
+            </Form.Select>
+          </Form.Group>
+        )}
+
+        {(formValues.category === "ERROR" || formValues.category === "DOUBT") && (
+          <Form.Group className="mb-3" controlId="formCourseId">
+            <Form.Label>Course {formValues.category === "DOUBT" ? "(Optional)" : ""}</Form.Label>
+            <Form.Select
+              name="courseId"
+              value={formValues.courseId}
+              onChange={handleInputChange}
+              disabled={isReadOnly}
+              required={formValues.category === "ERROR"}
+            >
+              <option value="">Select a course...</option>
+              {courses.map(c => (
+                <option key={c.id} value={c.id}>{c.description}</option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        )}
+
+        {formValues.category === "ERROR" && (
+          <>
+            <Form.Group className="mb-3" controlId="formModuleName">
+              <FloatingLabel label="Module Name">
+                <Form.Control
+                  type="text"
+                  name="moduleName"
+                  placeholder="Module Name"
+                  value={formValues.moduleName}
+                  onChange={handleInputChange}
+                  disabled={isReadOnly}
+                  required
+                />
+              </FloatingLabel>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formLessonName">
+              <FloatingLabel label="Lesson Name">
+                <Form.Control
+                  type="text"
+                  name="lessonName"
+                  placeholder="Lesson Name"
+                  value={formValues.lessonName}
+                  onChange={handleInputChange}
+                  disabled={isReadOnly}
+                  required
+                />
+              </FloatingLabel>
+            </Form.Group>
+          </>
+        )}
+
+        {formValues.category === "SUGGESTION" && (
+          <Form.Group className="mb-3" controlId="formExpectedBenefit">
+            <FloatingLabel label="Expected Benefit">
+              <Form.Control
+                as="textarea"
+                name="expectedBenefit"
+                placeholder="Expected Benefit"
+                style={{ height: "100px" }}
+                value={formValues.expectedBenefit}
+                onChange={handleInputChange}
+                disabled={isReadOnly}
+                required
+              />
+            </FloatingLabel>
+          </Form.Group>
+        )}
+
+        {formValues.category === "REQUEST" && (
+          <Form.Group className="mb-3" controlId="formRequestType">
+            <Form.Label>Request Type</Form.Label>
+            <Form.Select
+              name="requestType"
+              value={formValues.requestType}
+              onChange={handleInputChange}
+              disabled={isReadOnly}
+              required
+            >
+              <option value="DIDACTIC">Didactic</option>
+              <option value="ADMINISTRATIVE">Administrative</option>
+              <option value="TECHNICAL">Technical</option>
+              <option value="OTHER">Other</option>
+            </Form.Select>
+          </Form.Group>
+        )}
+
+        {formValues.category === "DOUBT" && (
+          <Form.Group className="mb-3" controlId="formIsFaqCandidate">
+            <Form.Check
+              type="checkbox"
+              label="Is FAQ Candidate?"
+              name="isFaqCandidate"
+              checked={formValues.isFaqCandidate}
+              onChange={handleInputChange}
+              disabled={isReadOnly}
+            />
+          </Form.Group>
+        )}
 
         {isNew && isLoggedIn && (
           <Form.Group className="mb-4" controlId="formAnonymous">

@@ -4,6 +4,10 @@ export const FETCH_COURSES_LIST_START = "FETCH_COURSES_LIST_START";
 export const FETCH_COURSES_LIST_SUCCESS = "FETCH_COURSES_LIST_SUCCESS";
 export const FETCH_COURSES_LIST_ERROR = "FETCH_COURSES_LIST_ERROR";
 
+export const FETCH_ALL_COURSES_START = "FETCH_ALL_COURSES_START";
+export const FETCH_ALL_COURSES_SUCCESS = "FETCH_ALL_COURSES_SUCCESS";
+export const FETCH_ALL_COURSES_ERROR = "FETCH_ALL_COURSES_ERROR";
+
 export const FETCH_COURSE_DETAIL_START = "FETCH_COURSE_DETAIL_START";
 export const FETCH_COURSE_DETAIL_SUCCESS = "FETCH_COURSE_DETAIL_SUCCESS";
 export const FETCH_COURSE_DETAIL_ERROR = "FETCH_COURSE_DETAIL_ERROR";
@@ -44,6 +48,42 @@ export const fetchCoursesListAction = ({ page = 0, sortBy = "id", sortDir = "ASC
     } catch (error) {
       dispatch({
         type: FETCH_COURSES_LIST_ERROR,
+        payload: error.message,
+      });
+    }
+  };
+};
+
+export const fetchAllCoursesAction = () => {
+  return async (dispatch) => {
+    dispatch({ type: FETCH_ALL_COURSES_START });
+    try {
+      let token = localStorage.getItem("token");
+      if (token === "null" || token === "undefined") token = null;
+
+      const url = `http://localhost:3001/courses/all`;
+
+      const response = await fetch(url, {
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        dispatch({
+          type: FETCH_ALL_COURSES_SUCCESS,
+          payload: data,
+        });
+      } else {
+        if (response.status === 401) {
+          dispatch(logoutAction());
+        }
+        throw new Error(response.status === 403 ? "Access Denied" : "Failed to fetch courses");
+      }
+    } catch (error) {
+      dispatch({
+        type: FETCH_ALL_COURSES_ERROR,
         payload: error.message,
       });
     }

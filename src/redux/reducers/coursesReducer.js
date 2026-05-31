@@ -6,6 +6,9 @@ import {
   FETCH_COURSE_DETAIL_SUCCESS,
   FETCH_COURSE_DETAIL_ERROR,
   CLEAR_COURSE_DETAIL,
+  FETCH_ALL_COURSES_START,
+  FETCH_ALL_COURSES_SUCCESS,
+  FETCH_ALL_COURSES_ERROR,
 } from "../actions/courses";
 
 const initialState = {
@@ -15,6 +18,11 @@ const initialState = {
     error: null,
     totalPages: 1,
     currentPage: 0,
+  },
+  allList: {
+    data: [],
+    loading: false,
+    error: null,
   },
   detail: {
     data: null,
@@ -45,6 +53,21 @@ const coursesReducer = (state = initialState, action) => {
       return {
         ...state,
         list: { ...state.list, loading: false, error: action.payload },
+      };
+    case FETCH_ALL_COURSES_START:
+      return {
+        ...state,
+        allList: { ...state.allList, loading: true, error: null },
+      };
+    case FETCH_ALL_COURSES_SUCCESS:
+      return {
+        ...state,
+        allList: { ...state.allList, loading: false, data: action.payload },
+      };
+    case FETCH_ALL_COURSES_ERROR:
+      return {
+        ...state,
+        allList: { ...state.allList, loading: false, error: action.payload },
       };
     case FETCH_COURSE_DETAIL_START:
       return {

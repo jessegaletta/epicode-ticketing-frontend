@@ -53,7 +53,8 @@ const TicketsPage = () => {
       ...ticket,
       authorEmail: authorEmail,
       isEditable,
-      displayStatus: formatStatus(ticket.status)
+      displayStatus: formatStatus(ticket.status),
+      displayCategory: ticket.category || "Unknown"
     };
   });
 
@@ -64,6 +65,7 @@ const TicketsPage = () => {
   const columns = [
     { field: "id", label: "ID" },
     { field: "title", label: "Title" },
+    { field: "displayCategory", label: "Category" },
     { field: "displayStatus", label: "Status" },
     { field: "authorEmail", label: "Author", sortField: "user.email" },
     { field: "createdAt", label: "Created At", isDate: true },
