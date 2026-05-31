@@ -16,6 +16,17 @@ const TicketsPage = () => {
   );
   const loggedInUser = useSelector((state) => state.auth?.user);
 
+  const formatStatus = (status) => {
+    const statusMap = {
+      'OPEN': 'Open',
+      'IN_PROGRESS': 'In progress',
+      'PENDING_INFO': 'Pending info',
+      'RESOLVED': 'Resolved',
+      'REJECTED': 'Rejected'
+    };
+    return statusMap[status] || status;
+  };
+
   // Compute isEditable so GenericTable can allow navigating in edit mode
   const ticketsArray = rawTickets.map((ticket) => {
     let isEditable = false;
@@ -42,6 +53,7 @@ const TicketsPage = () => {
       ...ticket,
       authorEmail: authorEmail,
       isEditable,
+      displayStatus: formatStatus(ticket.status)
     };
   });
 
@@ -52,7 +64,7 @@ const TicketsPage = () => {
   const columns = [
     { field: "id", label: "ID" },
     { field: "title", label: "Title" },
-    { field: "status", label: "Status" },
+    { field: "displayStatus", label: "Status" },
     { field: "authorEmail", label: "Author", sortField: "user.email" },
     { field: "createdAt", label: "Created At", isDate: true },
   ];

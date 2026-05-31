@@ -6,6 +6,7 @@ import {
   saveTicketAction,
   deleteTicketAction,
   clearTicketDetailAction,
+  changeTicketStatusAction,
 } from "../redux/actions/tickets";
 import {
   fetchActivitiesAction,
@@ -81,7 +82,6 @@ const TicketDetail = () => {
   const [formValues, setFormValues] = useState({
     title: "",
     description: "",
-    status: "OPEN",
     isAnonymous: false,
   });
 
@@ -96,13 +96,17 @@ const TicketDetail = () => {
   const [showActivityDeleteModal, setShowActivityDeleteModal] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState(null);
   const [showAddActivityForm, setShowAddActivityForm] = useState(false);
+  
+  // Status Change States
+  const [showChangeStatusForm, setShowChangeStatusForm] = useState(false);
+  const [newStatus, setNewStatus] = useState("OPEN");
+  const [statusComment, setStatusComment] = useState("");
 
   useEffect(() => {
     if (isNew) {
       setFormValues({
         title: "",
         description: "",
-        status: "OPEN",
         isAnonymous: false,
       });
       dispatch(clearTicketDetailAction());
@@ -118,9 +122,9 @@ const TicketDetail = () => {
       setFormValues({
         title: ticket.title || "",
         description: ticket.description || "",
-        status: ticket.status || "OPEN",
         isAnonymous: ticket.user === null,
       });
+      setNewStatus(ticket.status || "OPEN");
     }
   }, [isNew, ticket]);
 
@@ -144,6 +148,19 @@ const TicketDetail = () => {
     }
 
     dispatch(saveTicketAction(id, valuesToSubmit, !isNew, navigate));
+  };
+
+  const handleChangeStatus = async (e) => {
+    e.preventDefault();
+    if (!newStatus) return;
+    try {
+      await dispatch(changeTicketStatusAction(id, { status: newStatus, comment: statusComment }));
+      setShowChangeStatusForm(false);
+      setStatusComment("");
+      dispatch(fetchActivitiesAction(id));
+    } catch (err) {
+      setLocalError(err.message || "Failed to change status");
+    }
   };
 
   const handleDeleteTicket = async () => {
@@ -228,7 +245,14 @@ const TicketDetail = () => {
 
       {!isNew && (
         <p className="text-muted mb-4">
-          <strong>Author:</strong> {ticket?.userDeleted ? "user deleted" : (ticket?.user?.email ? `${ticket.user.email}${ticket.authorBachelorDescription ? ` (${ticket.authorBachelorDescription})` : ""}` : "Anonymous")}
+          <strong>Author:</strong> {ticket?.userDeleted ? "user deleted" : (ticket?.user?.email ? `${ticket.user.email}${ticket.authorBachelorDescription ? ` (${ticket.authorBachelorDescription})` : ""}` : "Anonymous")}<br/>
+          <strong>Status:</strong> <span className={`badge bg-${ticket?.status === 'OPEN' ? 'primary' : ticket?.status === 'RESOLVED' ? 'success' : ticket?.status === 'REJECTED' ? 'danger' : ticket?.status === 'IN_PROGRESS' ? 'info' : 'warning'}`}>
+            {ticket?.status === 'OPEN' ? 'Open' : 
+             ticket?.status === 'IN_PROGRESS' ? 'In progress' : 
+             ticket?.status === 'PENDING_INFO' ? 'Pending info' : 
+             ticket?.status === 'RESOLVED' ? 'Resolved' : 
+             ticket?.status === 'REJECTED' ? 'Rejected' : ticket?.status}
+          </span>
         </p>
       )}
 
@@ -266,22 +290,6 @@ const TicketDetail = () => {
           </FloatingLabel>
         </Form.Group>
 
-        {!isNew && (
-          <Form.Group className="mb-3" controlId="formStatus">
-            <FloatingLabel label="Status">
-              <Form.Select
-                name="status"
-                value={formValues.status}
-                onChange={handleInputChange}
-                disabled={isReadOnly}
-              >
-                <option value="OPEN">Open</option>
-                <option value="CLOSED">Closed</option>
-              </Form.Select>
-            </FloatingLabel>
-          </Form.Group>
-        )}
-
         {isNew && isLoggedIn && (
           <Form.Group className="mb-4" controlId="formAnonymous">
             <Form.Check
@@ -313,6 +321,58 @@ const TicketDetail = () => {
           </Button>
         )}
       </Form>
+
+      {!isNew && loggedInUser && (loggedInUser.role === 'ADMIN' || loggedInUser.role === 'FACULTY') && (
+        <>
+          <hr className="my-4" />
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4 className="mb-0 text-primary">Manage Status</h4>
+            {!showChangeStatusForm && (
+              <Button variant="outline-primary" size="sm" onClick={() => setShowChangeStatusForm(true)}>
+                Change Status
+              </Button>
+            )}
+          </div>
+          
+          {showChangeStatusForm && (
+            <div className="mb-4 p-3 bg-body-tertiary border rounded shadow-sm">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="mb-0">Change Ticket Status</h5>
+                <Button variant="close" onClick={() => setShowChangeStatusForm(false)} aria-label="Close"></Button>
+              </div>
+              <Form onSubmit={handleChangeStatus}>
+                <Form.Group className="mb-3" controlId="formNewStatus">
+                  <Form.Label>New Status</Form.Label>
+                  <Form.Select
+                    value={newStatus}
+                    onChange={(e) => setNewStatus(e.target.value)}
+                    required
+                  >
+                    <option value="OPEN">Open</option>
+                    <option value="IN_PROGRESS">In progress</option>
+                    <option value="PENDING_INFO">Pending info</option>
+                    <option value="RESOLVED">Resolved</option>
+                    <option value="REJECTED">Rejected</option>
+                  </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formStatusComment">
+                  <Form.Label>Comment (Optional)</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    placeholder="Add a comment to explain this status change..."
+                    value={statusComment}
+                    onChange={(e) => setStatusComment(e.target.value)}
+                  />
+                </Form.Group>
+                <Button type="submit" variant="primary" size="sm" disabled={loading}>
+                  {loading ? "Updating..." : "Update Status"}
+                </Button>
+              </Form>
+            </div>
+          )}
+        </>
+      )}
 
       {!isNew && !isReadOnly && (
         <>
@@ -411,14 +471,16 @@ const TicketDetail = () => {
 
                 const dateDisplay = formatDateTime(activity.createdAt);
 
+                const isStatus = activity.statusChange;
                 return (
-                  <div key={activity.id} className="card shadow-sm border-0 mb-3">
-                    <div className="card-header d-flex justify-content-between align-items-center bg-body-tertiary border-bottom-0">
+                  <div key={activity.id} className={`card shadow-sm border-0 mb-3 ${isStatus ? 'bg-primary-subtle' : ''}`}>
+                    <div className={`card-header d-flex justify-content-between align-items-center border-bottom-0 ${isStatus ? 'bg-primary-subtle' : 'bg-body-tertiary'}`}>
                       <div>
+                        {isStatus && <i className="bi bi-info-circle-fill text-primary me-2"></i>}
                         <strong>{authorDisplay}</strong>
                         <span className="text-muted ms-2" style={{ fontSize: "0.85em" }}>{dateDisplay}</span>
                       </div>
-                      {isEditable && (
+                      {!isStatus && isEditable && (
                         <div>
                           <Button 
                             variant="link" 

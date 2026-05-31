@@ -129,3 +129,28 @@ export const deleteTicketAction = (id) => {
     }
   };
 };
+
+export const changeTicketStatusAction = (id, statusData) => {
+  return async (dispatch) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:3001/tickets/${id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` })
+        },
+        body: JSON.stringify(statusData)
+      });
+      
+      if (response.ok) {
+        dispatch(fetchTicketDetailAction(id));
+      } else {
+        const err = await response.json();
+        throw new Error(err.message || "Error changing status");
+      }
+    } catch (e) {
+      throw new Error(e.message || "Network error or server unreachable");
+    }
+  }
+};
