@@ -108,7 +108,7 @@ const TicketDetail = () => {
   
   // Status Change States
   const [showChangeStatusForm, setShowChangeStatusForm] = useState(false);
-  const [newStatus, setNewStatus] = useState("OPEN");
+  const [newStatus, setNewStatus] = useState("UNASSIGNED");
   const [statusComment, setStatusComment] = useState("");
 
   useEffect(() => {
@@ -148,7 +148,7 @@ const TicketDetail = () => {
         requestType: ticket.requestType || "DIDACTIC",
         isFaqCandidate: ticket.isFaqCandidate || false
       });
-      setNewStatus(ticket.status || "OPEN");
+      setNewStatus(ticket.status || "UNASSIGNED");
     }
   }, [isNew, ticket]);
 
@@ -270,8 +270,8 @@ const TicketDetail = () => {
       {!isNew && (
         <p className="text-muted mb-4">
           <strong>Author:</strong> {ticket?.userDeleted ? "user deleted" : (ticket?.user?.email ? `${ticket.user.email}${ticket.authorBachelorDescription ? ` (${ticket.authorBachelorDescription})` : ""}` : "Anonymous")}<br/>
-          <strong>Status:</strong> <span className={`badge bg-${ticket?.status === 'OPEN' ? 'primary' : ticket?.status === 'RESOLVED' ? 'success' : ticket?.status === 'REJECTED' ? 'danger' : ticket?.status === 'IN_PROGRESS' ? 'info' : 'warning'}`}>
-            {ticket?.status === 'OPEN' ? 'Open' : 
+          <strong>Status:</strong> <span className={`badge bg-${ticket?.status === 'UNASSIGNED' ? 'primary' : ticket?.status === 'RESOLVED' ? 'success' : ticket?.status === 'REJECTED' ? 'danger' : ticket?.status === 'IN_PROGRESS' ? 'info' : 'warning'}`}>
+            {ticket?.status === 'UNASSIGNED' ? 'Unassigned' : 
              ticket?.status === 'IN_PROGRESS' ? 'In progress' : 
              ticket?.status === 'PENDING_INFO' ? 'Pending info' : 
              ticket?.status === 'RESOLVED' ? 'Resolved' : 
@@ -283,6 +283,23 @@ const TicketDetail = () => {
       {(localError || error) && (
         <Alert variant="danger">{localError || error}</Alert>
       )}
+
+      {isNew && (
+          <Form.Group className="mb-3" controlId="formCategory">
+            <Form.Label>Category</Form.Label>
+            <Form.Select
+              name="category"
+              value={formValues.category}
+              onChange={handleInputChange}
+              disabled={isReadOnly}
+            >
+              <option value="ERROR">Error</option>
+              <option value="SUGGESTION">Suggestion</option>
+              <option value="REQUEST">Request</option>
+              <option value="DOUBT">Doubt</option>
+            </Form.Select>
+          </Form.Group>
+        )}
 
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3" controlId="formTitle">
@@ -313,23 +330,6 @@ const TicketDetail = () => {
             />
           </FloatingLabel>
         </Form.Group>
-
-        {isNew && (
-          <Form.Group className="mb-3" controlId="formCategory">
-            <Form.Label>Category</Form.Label>
-            <Form.Select
-              name="category"
-              value={formValues.category}
-              onChange={handleInputChange}
-              disabled={isReadOnly}
-            >
-              <option value="ERROR">Error</option>
-              <option value="SUGGESTION">Suggestion</option>
-              <option value="REQUEST">Request</option>
-              <option value="DOUBT">Doubt</option>
-            </Form.Select>
-          </Form.Group>
-        )}
 
         {(formValues.category === "ERROR" || formValues.category === "DOUBT") && (
           <Form.Group className="mb-3" controlId="formCourseId">
@@ -486,7 +486,7 @@ const TicketDetail = () => {
                     onChange={(e) => setNewStatus(e.target.value)}
                     required
                   >
-                    <option value="OPEN">Open</option>
+                    <option value="UNASSIGNED">Unassigned</option>
                     <option value="IN_PROGRESS">In progress</option>
                     <option value="PENDING_INFO">Pending info</option>
                     <option value="RESOLVED">Resolved</option>

@@ -38,7 +38,7 @@ export const fetchBachelorsListAction = ({ page = 0, sortBy = "id", sortDir = "A
         });
       } else {
         if (response.status === 401) {
-          dispatch(logoutAction());
+          dispatch(logoutAction(null, true));
         }
         throw new Error(response.status === 403 ? "Access Denied" : "Failed to fetch bachelors");
       }
@@ -70,7 +70,7 @@ export const fetchBachelorDetailAction = (id) => {
         });
       } else {
         if (response.status === 401) {
-          dispatch(logoutAction());
+          dispatch(logoutAction(null, true));
         }
         throw new Error(response.status === 403 ? "Access Denied" : "Failed to fetch bachelor details");
       }

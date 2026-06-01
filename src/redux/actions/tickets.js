@@ -13,7 +13,7 @@ export const clearTicketDetailAction = () => ({
   type: CLEAR_TICKET_DETAIL,
 });
 
-export const fetchTicketsListAction = ({ page = 0, search = "", sortBy = "createdAt", sortDir = "DESC" }) => {
+export const fetchTicketsListAction = ({ page = 0, search = "", sortBy = "createdAt", sortDir = "DESC", category = "", status = "", onlyOpen = false }) => {
   return async (dispatch) => {
     dispatch({ type: FETCH_TICKETS_LIST_START });
     try {
@@ -21,6 +21,15 @@ export const fetchTicketsListAction = ({ page = 0, search = "", sortBy = "create
       let url = `http://localhost:3001/tickets?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
+      }
+      if (category) {
+        url += `&category=${encodeURIComponent(category)}`;
+      }
+      if (status) {
+        url += `&status=${encodeURIComponent(status)}`;
+      }
+      if (onlyOpen) {
+        url += `&onlyOpen=${encodeURIComponent(onlyOpen)}`;
       }
 
       const response = await fetch(url, {
@@ -37,7 +46,7 @@ export const fetchTicketsListAction = ({ page = 0, search = "", sortBy = "create
         });
       } else {
         if (response.status === 401) {
-          dispatch(logoutAction());
+          dispatch(logoutAction(null, true));
         }
         throw new Error(response.status === 403 ? "Access Denied" : "Failed to fetch tickets");
       }
@@ -69,7 +78,7 @@ export const fetchTicketDetailAction = (id) => {
         });
       } else {
         if (response.status === 401) {
-          dispatch(logoutAction());
+          dispatch(logoutAction(null, true));
         }
         throw new Error(response.status === 403 ? "Access Denied" : "Failed to fetch ticket details");
       }

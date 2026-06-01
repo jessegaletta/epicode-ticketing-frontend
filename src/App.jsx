@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UserDetail from "./pages/UserDetail";
 import AccessDenied from "./pages/AccessDenied";
+import SessionExpired from "./pages/SessionExpired";
 import UsersPage from "./pages/UsersPage";
 import TicketsPage from "./pages/TicketsPage";
 import TicketDetail from "./pages/TicketDetail";
@@ -41,6 +42,7 @@ function App() {
             <Route path="/courses/new" element={<CourseDetail />} />
             <Route path="/courses/:id" element={<CourseDetail />} />
             <Route path="/access-denied" element={<AccessDenied />} />
+            <Route path="/session-expired" element={<SessionExpired />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

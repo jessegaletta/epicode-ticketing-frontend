@@ -32,7 +32,7 @@ export const fetchUsersListAction = ({ page = 0, search = "", sortBy = "id", sor
         });
       } else {
         if (response.status === 401) {
-          dispatch(logoutAction());
+          dispatch(logoutAction(null, true));
         }
         throw new Error(response.status === 403 ? "Access Denied" : "Failed to fetch users");
       }
@@ -64,7 +64,7 @@ export const fetchUserDetailAction = (id) => {
         });
       } else {
         if (response.status === 401) {
-          dispatch(logoutAction());
+          dispatch(logoutAction(null, true));
         }
         throw new Error(response.status === 403 ? "Access Denied" : "Failed to fetch user details");
       }

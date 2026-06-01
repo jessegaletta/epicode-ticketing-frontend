@@ -41,7 +41,7 @@ export const fetchCoursesListAction = ({ page = 0, sortBy = "id", sortDir = "ASC
         });
       } else {
         if (response.status === 401) {
-          dispatch(logoutAction());
+          dispatch(logoutAction(null, true));
         }
         throw new Error(response.status === 403 ? "Access Denied" : "Failed to fetch courses");
       }
@@ -77,7 +77,7 @@ export const fetchAllCoursesAction = () => {
         });
       } else {
         if (response.status === 401) {
-          dispatch(logoutAction());
+          dispatch(logoutAction(null, true));
         }
         throw new Error(response.status === 403 ? "Access Denied" : "Failed to fetch courses");
       }
@@ -109,7 +109,7 @@ export const fetchCourseDetailAction = (id) => {
         });
       } else {
         if (response.status === 401) {
-          dispatch(logoutAction());
+          dispatch(logoutAction(null, true));
         }
         throw new Error(response.status === 403 ? "Access Denied" : "Failed to fetch course details");
       }

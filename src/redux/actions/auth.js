@@ -24,8 +24,6 @@ export const loginAction = (credentials) => {
       if (response.ok) {
         const data = await response.json();
         const token = data.accessToken;
-
-        console.log("accessToken: " + token); // TODO: remove after testing
         
         if (token) {
           localStorage.setItem("token", token);
@@ -62,14 +60,15 @@ export const loginAction = (credentials) => {
   };
 };
 
-export const logoutAction = (navigate) => {
+export const logoutAction = (navigate, isSessionExpired = false) => {
     return (dispatch) => {
         localStorage.removeItem("token");
         dispatch({ type: LOGOUT });
+        const targetPath = isSessionExpired ? "/session-expired" : "/login";
         if (navigate) {
-            navigate("/login");
+            navigate(targetPath);
         } else {
-            window.location.href = "/login";
+            window.location.href = targetPath;
         }
     }
 }
