@@ -13,9 +13,10 @@ export const clearTicketDetailAction = () => ({
   type: CLEAR_TICKET_DETAIL,
 });
 
-export const fetchTicketsListAction = ({ page = 0, search = "", sortBy = "createdAt", sortDir = "DESC", category = "", status = "", onlyOpen = false }) => {
+export const fetchTicketsListAction = (params = {}) => {
+  const { page = 0, search = "", sortBy = "createdAt", sortDir = "DESC", category = "", status = "", onlyOpen = false } = params;
   return async (dispatch) => {
-    dispatch({ type: FETCH_TICKETS_LIST_START });
+    dispatch({ type: FETCH_TICKETS_LIST_START, params });
     try {
       const token = localStorage.getItem("token");
       let url = `http://localhost:3001/tickets?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;

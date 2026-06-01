@@ -85,15 +85,28 @@ function MyNavBar() {
             <NavLink className="nav-link" to="/tickets">
               Tickets
             </NavLink>
-            <NavLink className="nav-link" to="/bachelors">
-              Bachelors
-            </NavLink>
-            <NavLink className="nav-link" to="/courses">
-              Courses
-            </NavLink>
-            <NavLink className="nav-link" to="/users">
-              Users
-            </NavLink>
+            {isLoggedIn && (user?.role === "FACULTY" || user?.role === "ADMIN") ? (
+              <>
+                <NavLink className="nav-link" to="/bachelors">
+                  Bachelors
+                </NavLink>
+                <NavLink className="nav-link" to="/courses">
+                  Courses
+                </NavLink>
+              </>
+            ) : (
+              <>
+                <div className="nav-link d-none d-lg-block invisible">Bachelors</div>
+                <div className="nav-link d-none d-lg-block invisible">Courses</div>
+              </>
+            )}
+            {isLoggedIn && user?.role === "ADMIN" ? (
+              <NavLink className="nav-link" to="/users">
+                Users
+              </NavLink>
+            ) : (
+              <div className="nav-link d-none d-lg-block invisible">Users</div>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>

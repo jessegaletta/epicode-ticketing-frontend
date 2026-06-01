@@ -13,9 +13,10 @@ export const clearBachelorDetailAction = () => ({
   type: CLEAR_BACHELOR_DETAIL,
 });
 
-export const fetchBachelorsListAction = ({ page = 0, sortBy = "id", sortDir = "ASC", search = "" } = {}) => {
+export const fetchBachelorsListAction = (params = {}) => {
+  const { page = 0, sortBy = "id", sortDir = "ASC", search = "" } = params;
   return async (dispatch) => {
-    dispatch({ type: FETCH_BACHELORS_LIST_START });
+    dispatch({ type: FETCH_BACHELORS_LIST_START, params });
     try {
       // Endpoint is public, so no token needed for GET, but we'll include if available
       const token = localStorage.getItem("token");

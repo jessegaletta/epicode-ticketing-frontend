@@ -15,6 +15,7 @@ const initialState = {
     error: null,
     totalPages: 1,
     currentPage: 0,
+    params: {},
   },
   detail: {
     data: null,
@@ -28,7 +29,7 @@ const ticketsReducer = (state = initialState, action) => {
     case FETCH_TICKETS_LIST_START:
       return {
         ...state,
-        list: { ...state.list, loading: true, error: null },
+        list: { ...state.list, loading: true, error: null, params: action.params || state.list.params },
       };
     case FETCH_TICKETS_LIST_SUCCESS:
       return {

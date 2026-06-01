@@ -7,6 +7,7 @@ const UsersPage = () => {
   const dispatch = useDispatch();
 
   // Select data from the store (usersReducer)
+  const savedParams = useSelector((state) => state.users?.list?.params) || {};
   const usersArray = useSelector((state) => state.users?.list?.data || []);
   const isLoading = useSelector((state) => state.users?.list?.loading || false);
   const error = useSelector((state) => state.users?.list?.error || null);
@@ -40,6 +41,7 @@ const UsersPage = () => {
         totalPages={totalPages}
         onFetchData={handleFetchData}
         detailsUrlPrefix="users"
+        initialState={savedParams}
       />
     </div>
   );

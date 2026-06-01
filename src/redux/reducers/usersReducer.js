@@ -14,6 +14,7 @@ const initialState = {
     error: null,
     totalPages: 1,
     currentPage: 0,
+    params: {},
   },
   detail: {
     data: null,
@@ -27,7 +28,7 @@ const usersReducer = (state = initialState, action) => {
     case FETCH_USERS_LIST_START:
       return {
         ...state,
-        list: { ...state.list, loading: true, error: null },
+        list: { ...state.list, loading: true, error: null, params: action.params || state.list.params },
       };
     case FETCH_USERS_LIST_SUCCESS:
       return {

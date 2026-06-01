@@ -433,7 +433,7 @@ const TicketDetail = () => {
             <Form.Check
               type="switch"
               id="custom-switch-anonymous"
-              label="Post Anonymously (You will not be able to edit or delete it)"
+              label="Post Anonymously (you will not be able to edit or delete it)"
               name="isAnonymous"
               checked={formValues.isAnonymous}
               onChange={handleInputChange}
@@ -444,7 +444,7 @@ const TicketDetail = () => {
 
         {isNew && !isLoggedIn && (
           <Alert variant="info" className="mb-4">
-            You are creating this ticket as an anonymous user.
+            Without logging in, you are creating this ticket as an anonymous user: you will not be able to edit or delete it.
           </Alert>
         )}
 
@@ -576,7 +576,7 @@ const TicketDetail = () => {
                 </Form.Group>
               )}
               {!isLoggedIn && (
-                <Alert variant="info" className="py-2 mb-3">You are posting as an anonymous user.</Alert>
+                <Alert variant="info" className="py-2 mb-3">Without logging in, you are posting as an anonymous user: you will not be able to edit or delete it.</Alert>
               )}
               <Button type="submit" variant="primary" size="sm" disabled={activitiesLoading}>
                 {activitiesLoading ? "Posting..." : "Post Activity"}

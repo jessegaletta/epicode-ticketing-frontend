@@ -8,9 +8,10 @@ export const FETCH_USER_DETAIL_START = "FETCH_USER_DETAIL_START";
 export const FETCH_USER_DETAIL_SUCCESS = "FETCH_USER_DETAIL_SUCCESS";
 export const FETCH_USER_DETAIL_ERROR = "FETCH_USER_DETAIL_ERROR";
 
-export const fetchUsersListAction = ({ page = 0, search = "", sortBy = "id", sortDir = "ASC" }) => {
+export const fetchUsersListAction = (params = {}) => {
+  const { page = 0, search = "", sortBy = "id", sortDir = "ASC" } = params;
   return async (dispatch) => {
-    dispatch({ type: FETCH_USERS_LIST_START });
+    dispatch({ type: FETCH_USERS_LIST_START, params });
     try {
       const token = localStorage.getItem("token");
       let url = `http://localhost:3001/users?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;

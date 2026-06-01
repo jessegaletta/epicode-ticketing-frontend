@@ -15,6 +15,7 @@ const initialState = {
     error: null,
     totalPages: 1,
     currentPage: 0,
+    params: {},
   },
   detail: {
     data: null,
@@ -28,7 +29,7 @@ const bachelorsReducer = (state = initialState, action) => {
     case FETCH_BACHELORS_LIST_START:
       return {
         ...state,
-        list: { ...state.list, loading: true, error: null },
+        list: { ...state.list, loading: true, error: null, params: action.params || state.list.params },
       };
     case FETCH_BACHELORS_LIST_SUCCESS:
       return {

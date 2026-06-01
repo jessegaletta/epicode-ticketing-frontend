@@ -17,9 +17,10 @@ export const clearCourseDetailAction = () => ({
   type: CLEAR_COURSE_DETAIL,
 });
 
-export const fetchCoursesListAction = ({ page = 0, sortBy = "id", sortDir = "ASC", search = "" } = {}) => {
+export const fetchCoursesListAction = (params = {}) => {
+  const { page = 0, sortBy = "id", sortDir = "ASC", search = "" } = params;
   return async (dispatch) => {
-    dispatch({ type: FETCH_COURSES_LIST_START });
+    dispatch({ type: FETCH_COURSES_LIST_START, params });
     try {
       const token = localStorage.getItem("token");
       let url = `http://localhost:3001/courses?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;

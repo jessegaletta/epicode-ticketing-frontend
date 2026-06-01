@@ -10,13 +10,14 @@ const GenericTable = ({
   error = null,
   totalPages = 1,
   onFetchData,
-  detailsUrlPrefix
+  detailsUrlPrefix,
+  initialState = {}
 }) => {
-  const [page, setPage] = useState(0);
-  const [searchInput, setSearchInput] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortField, setSortField] = useState("id");
-  const [sortDir, setSortDir] = useState("ASC");
+  const [page, setPage] = useState(initialState.page || 0);
+  const [searchInput, setSearchInput] = useState(initialState.search || "");
+  const [searchTerm, setSearchTerm] = useState(initialState.search || "");
+  const [sortField, setSortField] = useState(initialState.sortBy || "id");
+  const [sortDir, setSortDir] = useState(initialState.sortDir || "ASC");
   const navigate = useNavigate();
 
   const settings = useSelector((state) => state.settings);

@@ -6,10 +6,17 @@ import { fetchTicketsListAction } from "../redux/actions/tickets";
 
 const TicketsPage = () => {
   const dispatch = useDispatch();
-  const [filterCategory, setFilterCategory] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [onlyOpen, setOnlyOpen] = useState(false);
-  const lastParamsRef = useRef({ page: 0, sortBy: "createdAt", sortDir: "DESC", search: "" });
+  const savedParams = useSelector((state) => state.tickets?.list?.params) || {};
+
+  const [filterCategory, setFilterCategory] = useState(savedParams.category || "");
+  const [filterStatus, setFilterStatus] = useState(savedParams.status || "");
+  const [onlyOpen, setOnlyOpen] = useState(savedParams.onlyOpen || false);
+  const lastParamsRef = useRef({ 
+    page: savedParams.page || 0, 
+    sortBy: savedParams.sortBy || "createdAt", 
+    sortDir: savedParams.sortDir || "DESC", 
+    search: savedParams.search || "" 
+  });
 
   const rawTickets = useSelector((state) => state.tickets?.list?.data || []);
   const isLoading = useSelector(
@@ -98,6 +105,7 @@ const TicketsPage = () => {
     { field: "displayStatus", label: "Status", sortField: "status" },
     { field: "authorEmail", label: "Author", sortField: "user.email" },
     { field: "createdAt", label: "Created At", isDate: true },
+    { field: "lastUpdate", label: "Last Update", isDate: true },
   ];
 
   return (
@@ -150,6 +158,7 @@ const TicketsPage = () => {
         totalPages={totalPages}
         onFetchData={handleFetchData}
         detailsUrlPrefix="tickets"
+        initialState={lastParamsRef.current}
       />
     </div>
   );

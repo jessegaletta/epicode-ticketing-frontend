@@ -8,6 +8,7 @@ const CoursesPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const savedParams = useSelector((state) => state.courses?.list?.params) || {};
   const rawCourses = useSelector((state) => state.courses?.list?.data || []);
   const isLoading = useSelector(
     (state) => state.courses?.list?.loading || false,
@@ -71,6 +72,7 @@ const CoursesPage = () => {
         totalPages={totalPages}
         onFetchData={handleFetchData}
         detailsUrlPrefix="courses"
+        initialState={savedParams}
       />
     </div>
   );

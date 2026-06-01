@@ -18,6 +18,7 @@ const initialState = {
     error: null,
     totalPages: 1,
     currentPage: 0,
+    params: {},
   },
   allList: {
     data: [],
@@ -36,7 +37,7 @@ const coursesReducer = (state = initialState, action) => {
     case FETCH_COURSES_LIST_START:
       return {
         ...state,
-        list: { ...state.list, loading: true, error: null },
+        list: { ...state.list, loading: true, error: null, params: action.params || state.list.params },
       };
     case FETCH_COURSES_LIST_SUCCESS:
       return {
