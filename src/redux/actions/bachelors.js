@@ -18,7 +18,7 @@ export const fetchBachelorsListAction = (params = {}) => {
   return async (dispatch) => {
     dispatch({ type: FETCH_BACHELORS_LIST_START, params });
     try {
-      // Endpoint is public, so no token needed for GET, but we'll include if available
+      // Endpoint is public, so no token needed for GET, but I'll include if available
       const token = localStorage.getItem("token");
       let url = `http://localhost:3001/bachelors?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
       if (search) {

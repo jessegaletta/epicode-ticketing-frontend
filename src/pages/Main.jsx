@@ -1,5 +1,6 @@
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import Loading from "../components/common/Loading";
 import Error from "../components/common/Error";
 import { useNavigate } from "react-router";
@@ -8,6 +9,7 @@ const Main = function () {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { isLoggedIn } = useSelector((state) => state.auth);
 
   return (
     <Container fluid className="d-flex flex-column justify-content-center align-items-center flex-grow-1 text-center" style={{ minHeight: "80vh" }}>
@@ -25,9 +27,11 @@ const Main = function () {
             <Button variant="primary" size="lg" onClick={() => navigate("/tickets")}>
               Go to Tickets
             </Button>
-            <Button variant="outline-secondary" size="lg" onClick={() => navigate("/login")}>
-              Login
-            </Button>
+            {!isLoggedIn && (
+              <Button variant="outline-secondary" size="lg" onClick={() => navigate("/login")}>
+                Login
+              </Button>
+            )}
           </div>
 
           <Row className="g-3 mt-2 justify-content-center">

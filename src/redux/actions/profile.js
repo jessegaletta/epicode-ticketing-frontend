@@ -45,7 +45,7 @@ export const fetchProfileAction = (token) => {
         });
       } else {
           console.log("Failed to fetch user profile");
-          // If token is invalid/expired, we might want to logout
+          // If token is invalid/expired, I might want to logout
           if(meResponse.status === 401) {
              dispatch(logoutAction(null, true));
           }

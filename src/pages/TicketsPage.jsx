@@ -50,7 +50,7 @@ const TicketsPage = () => {
       }
     }
 
-    // We also map ticket.user.email to author for display
+    // I also map ticket.user.email to author for display
     let authorEmail = "Anonymous";
     if (ticket.userDeleted) {
       authorEmail = "user deleted";

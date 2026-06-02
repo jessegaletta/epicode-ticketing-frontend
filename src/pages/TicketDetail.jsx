@@ -18,6 +18,7 @@ import {
 import { fetchAllCoursesAction } from "../redux/actions/courses";
 import Loading from "../components/common/Loading";
 import { useNavigate, useParams, useLocation } from "react-router";
+import { Link } from "react-router";
 import ConfirmModal from "../components/common/ConfirmModal";
 
 const TicketDetail = () => {
@@ -48,7 +49,7 @@ const TicketDetail = () => {
     }
   }
 
-  // We can edit if it's new, or if the user has editMode from the table row click, or computed ticketIsEditable.
+  // I can edit if it's new, or if the user has editMode from the table row click, or computed ticketIsEditable.
   const isReadOnly = !isNew && !ticketIsEditable && !location.state?.editMode;
 
   const formatDateTime = (dateString) => {
@@ -165,7 +166,7 @@ const TicketDetail = () => {
     setLocalError("");
 
     // Check if the user is not logged in but tries to create a non-anonymous ticket.
-    // The backend allows null user, but we should make sure the UI reflects it.
+    // The backend allows null user, but I should make sure the UI reflects it.
     let valuesToSubmit = { ...formValues };
     if (isNew && !isLoggedIn && !valuesToSubmit.isAnonymous) {
       valuesToSubmit.isAnonymous = true;
@@ -444,7 +445,7 @@ const TicketDetail = () => {
 
         {isNew && !isLoggedIn && (
           <Alert variant="info" className="mb-4">
-            Without logging in, you are creating this ticket as an anonymous user: you will not be able to edit or delete it.
+            Without <Link to="/login">logging in</Link>, you are creating this ticket as an anonymous user: you will not be able to edit or delete it.
           </Alert>
         )}
 
@@ -576,7 +577,7 @@ const TicketDetail = () => {
                 </Form.Group>
               )}
               {!isLoggedIn && (
-                <Alert variant="info" className="py-2 mb-3">Without logging in, you are posting as an anonymous user: you will not be able to edit or delete it.</Alert>
+                <Alert variant="info" className="py-2 mb-3">Without <Link to="/login">logging in</Link>, you are posting as an anonymous user: you will not be able to edit or delete it.</Alert>
               )}
               <Button type="submit" variant="primary" size="sm" disabled={activitiesLoading}>
                 {activitiesLoading ? "Posting..." : "Post Activity"}

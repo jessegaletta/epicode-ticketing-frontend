@@ -83,6 +83,11 @@ const Login = () => {
                 Don't have an account? Sign Up
              </a>
           </div>
+          <div className="text-center mt-2">
+             <a href="/forgot-password" onClick={(e) => { e.preventDefault(); navigate('/forgot-password'); }} className="text-decoration-none text-muted">
+                Forgot your password?
+             </a>
+          </div>
         </Form>
       </Row>
     </Container>

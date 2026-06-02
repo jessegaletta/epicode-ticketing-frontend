@@ -6,6 +6,8 @@ import NotFound from "./pages/NotFound";
 import Layout from "./components/layout/Layout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import UserDetail from "./pages/UserDetail";
 import AccessDenied from "./pages/AccessDenied";
 import SessionExpired from "./pages/SessionExpired";
@@ -28,6 +30,8 @@ function App() {
             <Route path="/" element={<Main />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/users/me" element={<UserDetail />} />
             <Route path="/users" element={<UsersPage />} />
             <Route path="/users/new" element={<UserDetail />} />
