@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import GenericTable from "../components/common/GenericTable";
@@ -32,7 +32,6 @@ const BachelorsPage = () => {
     }
   }, [loggedInUser, token, navigate]);
 
-  // Compute isEditable so GenericTable can allow navigating in edit mode
   const bachelorsArray = rawBachelors.map((bachelor) => {
     let isEditable = false;
     if (loggedInUser && (loggedInUser.role === "ADMIN" || loggedInUser.role === "FACULTY")) {

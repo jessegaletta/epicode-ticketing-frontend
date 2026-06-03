@@ -26,11 +26,13 @@ const Register = () => {
   const bachelors = useSelector(state => state.bachelors?.list?.data || []);
 
   useEffect(() => {
-    dispatch(fetchBachelorsListAction({ size: 100 })); // fetch all for dropdown
+    dispatch(fetchBachelorsListAction({ size: 100 }));
   }, [dispatch]);
 
   useEffect(() => {
     if (successMessage === "Registration successful! Redirecting to login...") {
+      /* setTimeout delays the redirect so the user can read the success message;
+         clearTimeout is returned as cleanup so the redirect is cancelled if the component unmounts first */
       const timer = setTimeout(() => navigate("/login"), 3000);
       return () => clearTimeout(timer);
     }
@@ -54,7 +56,6 @@ const Register = () => {
     e.preventDefault();
     setLocalError("");
 
-    // Validation
     if (formValues.password !== formValues.confirmPassword) {
       setLocalError("Passwords do not match.");
       return;

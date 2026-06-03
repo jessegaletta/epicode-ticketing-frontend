@@ -85,6 +85,7 @@ function MyNavBar() {
             <NavLink className="nav-link" to="/tickets">
               Tickets
             </NavLink>
+            {/* Bachelors and Courses are shown only to FACULTY and ADMIN users */}
             {isLoggedIn && (user?.role === "FACULTY" || user?.role === "ADMIN") ? (
               <>
                 <NavLink className="nav-link" to="/bachelors">
@@ -96,10 +97,12 @@ function MyNavBar() {
               </>
             ) : (
               <>
+                {/* invisible placeholders keep the nav layout balanced on desktop */}
                 <div className="nav-link d-none d-lg-block invisible">Bachelors</div>
                 <div className="nav-link d-none d-lg-block invisible">Courses</div>
               </>
             )}
+            {/* Users is only visible to ADMIN */}
             {isLoggedIn && user?.role === "ADMIN" ? (
               <NavLink className="nav-link" to="/users">
                 Users

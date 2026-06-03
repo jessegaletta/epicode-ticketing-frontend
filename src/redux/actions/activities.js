@@ -8,6 +8,8 @@ export const CLEAR_ACTIVITIES = "CLEAR_ACTIVITIES";
 
 const BASE_URL = "http://localhost:3001";
 
+/* helper function to avoid repeating the same header logic in every action;
+   isJson = true adds the Content-Type header needed for POST/PUT requests with a JSON body */
 const getHeaders = (token, isJson = false) => {
   const headers = {};
   if (isJson) {
@@ -69,8 +71,10 @@ export const createActivityAction = (ticketId, payload) => {
         type: CREATE_ACTIVITY_SUCCESS,
         payload: data,
       });
+      // the data is returned so the component can use it if needed after awaiting the dispatch
       return data;
     } catch (error) {
+      // re-thrown so the component that called dispatch() can catch it and show an error message
       throw error;
     }
   };

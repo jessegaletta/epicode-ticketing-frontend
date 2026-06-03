@@ -25,9 +25,11 @@ const ResetPassword = () => {
       setError("Passwords do not match.");
       return;
     }
-    
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+
+    // same regex used in UserDetail to keep password rules consistent across the app
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError("Password must be at least 8 characters and include uppercase, lowercase letters and numbers.");
       return;
     }
 
@@ -87,6 +89,8 @@ const ResetPassword = () => {
                       placeholder="Enter new password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$"
+                      title="Must contain at least 8 characters, including uppercase, lowercase letters and numbers"
                       required
                     />
                   </Form.Group>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Form, Row, Col } from "react-bootstrap";
 import GenericTable from "../components/common/GenericTable";
@@ -6,16 +6,19 @@ import { fetchTicketsListAction } from "../redux/actions/tickets";
 
 const TicketsPage = () => {
   const dispatch = useDispatch();
+  // savedParams comes from Redux so when the user goes back to this page the filters are restored
   const savedParams = useSelector((state) => state.tickets?.list?.params) || {};
 
   const [filterCategory, setFilterCategory] = useState(savedParams.category || "");
   const [filterStatus, setFilterStatus] = useState(savedParams.status || "");
   const [onlyOpen, setOnlyOpen] = useState(savedParams.onlyOpen || false);
-  const lastParamsRef = useRef({ 
-    page: savedParams.page || 0, 
-    sortBy: savedParams.sortBy || "createdAt", 
-    sortDir: savedParams.sortDir || "DESC", 
-    search: savedParams.search || "" 
+  /* useRef keeps the last pagination/sorting params without causing an extra re-render;
+     useState would cause an infinite loop with the useEffect inside GenericTable */
+  const lastParamsRef = useRef({
+    page: savedParams.page || 0,
+    sortBy: savedParams.sortBy || "createdAt",
+    sortDir: savedParams.sortDir || "DESC",
+    search: savedParams.search || "",
   });
 
   const rawTickets = useSelector((state) => state.tickets?.list?.data || []);
@@ -39,7 +42,6 @@ const TicketsPage = () => {
     return statusMap[status] || status;
   };
 
-  // Compute isEditable so GenericTable can allow navigating in edit mode
   const ticketsArray = rawTickets.map((ticket) => {
     let isEditable = false;
     if (loggedInUser) {
@@ -50,7 +52,6 @@ const TicketsPage = () => {
       }
     }
 
-    // I also map ticket.user.email to author for display
     let authorEmail = "Anonymous";
     if (ticket.userDeleted) {
       authorEmail = "user deleted";

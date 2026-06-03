@@ -10,15 +10,18 @@ const Layout = function () {
   const { token, user } = useSelector(state => state.auth);
   const darkMode = useSelector(state => state.settings.darkMode);
 
+  /* if the page is refreshed the token is still in localStorage but user is null;
+     the profile is fetched again to restore the logged-in state */
   useEffect(() => {
     if (token && !user) {
       dispatch(fetchProfileAction(token));
     }
   }, [token, user, dispatch]);
 
-  // Apply Dark Mode Theme globally
+  /* Bootstrap 5 dark mode is activated by setting data-bs-theme on the <html> element;
+     placed here on the root layout so it applies to the entire page */
   useEffect(() => {
-    document.documentElement.setAttribute('data-bs-theme', darkMode ? 'dark' : 'light');
+    document.documentElement.setAttribute("data-bs-theme", darkMode ? "dark" : "light");
   }, [darkMode]);
 
   return (

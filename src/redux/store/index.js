@@ -18,9 +18,11 @@ const appReducer = combineReducers({
   activities: activitiesReducer,
 });
 
+/* appReducer is wrapped in a rootReducer to reset the ENTIRE Redux state on logout;
+   without this, data from the previous user (like "Access Denied" errors) would still
+   be visible when a new user logs in */
 const rootReducer = (state, action) => {
   if (action.type === LOGOUT || action.type === LOGIN_START) {
-    // Clear all state on logout or when a new login starts to avoid stale errors like "Access Denied"
     state = undefined;
   }
   return appReducer(state, action);

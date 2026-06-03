@@ -43,14 +43,16 @@ const activitiesReducer = (state = initialState, action) => {
     case UPDATE_ACTIVITY_SUCCESS:
       return {
         ...state,
-        data: state.data.map(activity => 
+        // map() is used to replace only the updated activity without mutating the original array
+        data: state.data.map((activity) =>
           activity.id === action.payload.id ? action.payload : activity
         ),
       };
     case DELETE_ACTIVITY_SUCCESS:
       return {
         ...state,
-        data: state.data.filter(activity => activity.id !== action.payload),
+        // filter() is used to remove the deleted activity without mutating the original array
+        data: state.data.filter((activity) => activity.id !== action.payload),
       };
     case CLEAR_ACTIVITIES:
       return initialState;

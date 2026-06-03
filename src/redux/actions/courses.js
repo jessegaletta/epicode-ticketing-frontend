@@ -59,8 +59,7 @@ export const fetchAllCoursesAction = () => {
   return async (dispatch) => {
     dispatch({ type: FETCH_ALL_COURSES_START });
     try {
-      let token = localStorage.getItem("token");
-      if (token === "null" || token === "undefined") token = null;
+      const token = localStorage.getItem("token");
 
       const url = `http://localhost:3001/courses/all`;
 
@@ -146,7 +145,9 @@ export const saveCourseAction = (id, courseData, isEditing) => {
         const err = await response.json();
         if (err.message) errMessage = err.message;
         else if (err.errorsList) errMessage = err.errorsList.join(", ");
-      } catch (e) {}
+      } catch (e) {
+        // the response body is not JSON, so the default error message is kept
+      }
       throw new Error(errMessage);
     }
   };
@@ -166,7 +167,9 @@ export const deleteCourseAction = (id) => {
       try {
         const err = await response.json();
         errMessage = err.message || errMessage;
-      } catch (e) {}
+      } catch (e) {
+        // the response body is not JSON, so the default error message is kept
+      }
       throw new Error(errMessage);
     }
     dispatch(fetchCoursesListAction());

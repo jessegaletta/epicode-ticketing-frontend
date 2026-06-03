@@ -18,7 +18,7 @@ export const fetchBachelorsListAction = (params = {}) => {
   return async (dispatch) => {
     dispatch({ type: FETCH_BACHELORS_LIST_START, params });
     try {
-      // Endpoint is public, so no token needed for GET, but I'll include if available
+      // the endpoint is public so no token is required, but it is sent anyway when available
       const token = localStorage.getItem("token");
       let url = `http://localhost:3001/bachelors?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
       if (search) {
@@ -107,7 +107,9 @@ export const saveBachelorAction = (id, bachelorData, isEditing) => {
         const err = await response.json();
         if (err.message) errMessage = err.message;
         else if (err.errorsList) errMessage = err.errorsList.join(", ");
-      } catch (e) {}
+      } catch (e) {
+        // the response body is not JSON, so the default error message is kept
+      }
       throw new Error(errMessage);
     }
   };
@@ -127,7 +129,9 @@ export const deleteBachelorAction = (id) => {
       try {
         const err = await response.json();
         errMessage = err.message || errMessage;
-      } catch (e) {}
+      } catch (e) {
+        // the response body is not JSON, so the default error message is kept
+      }
       throw new Error(errMessage);
     }
     dispatch(fetchBachelorsListAction());

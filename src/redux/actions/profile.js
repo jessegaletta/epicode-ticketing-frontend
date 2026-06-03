@@ -19,8 +19,9 @@ export const fetchProfileAction = (token) => {
       
       if (meResponse.ok) {
         const userData = await meResponse.json();
-        
-        // Dispatch user details
+
+        /* an action can dispatch multiple times: user identity and display settings are split
+           into two reducers (authReducer and settingsReducer) to keep state organized */
         dispatch({
           type: SET_USER,
           payload: {
@@ -29,32 +30,31 @@ export const fetchProfileAction = (token) => {
             lastName: userData.lastName,
             email: userData.email,
             avatarURL: userData.avatarURL,
-            role: userData.role
-          }
+            role: userData.role,
+          },
         });
 
-        // Dispatch settings
         dispatch({
           type: SET_SETTINGS,
           payload: {
             darkMode: userData.darkMode,
             timezone: userData.timezone,
             dateFormat: userData.dateFormat,
-            timeFormat: userData.timeFormat
-          }
+            timeFormat: userData.timeFormat,
+          },
         });
       } else {
-          console.log("Failed to fetch user profile");
-          // If token is invalid/expired, I might want to logout
-          if(meResponse.status === 401) {
-             dispatch(logoutAction(null, true));
-          }
+        console.log("Failed to fetch user profile");
+        // if the token is expired the server returns 401, so a force logout is triggered
+        if (meResponse.status === 401) {
+          dispatch(logoutAction(null, true));
+        }
       }
-    } catch(err) {
-       console.log("Error fetching profile", err);
+    } catch (err) {
+      console.log("Error fetching profile", err);
     }
-  }
-}
+  };
+};
 
 export const updateProfileAction = (submitValues, avatarFile, token) => {
   return async (dispatch) => {
@@ -79,7 +79,7 @@ export const updateProfileAction = (submitValues, avatarFile, token) => {
             errorMsg = errorData.message || errorMsg;
           }
         } catch (e) {
-          // ignore
+          // the response body is not JSON, so the default error message is kept
         }
         throw new Error(errorMsg);
       }
@@ -87,6 +87,8 @@ export const updateProfileAction = (submitValues, avatarFile, token) => {
       let userData = await response.json();
 
       if (avatarFile) {
+        /* FormData is needed for file uploads — JSON.stringify cannot be used for binary files;
+           the browser automatically sets the correct Content-Type (multipart/form-data) */
         const formData = new FormData();
         formData.append("avatar", avatarFile);
 
@@ -104,7 +106,6 @@ export const updateProfileAction = (submitValues, avatarFile, token) => {
         userData = await avatarResponse.json();
       }
 
-      // Dispatch user details
       dispatch({
         type: SET_USER,
         payload: {
@@ -117,7 +118,6 @@ export const updateProfileAction = (submitValues, avatarFile, token) => {
         },
       });
 
-      // Dispatch settings
       dispatch({
         type: SET_SETTINGS,
         payload: {
@@ -153,7 +153,9 @@ export const deleteAccountAction = (token, navigate) => {
         try {
           const err = await response.json();
           errMessage = err.message || errMessage;
-        } catch (e) {}
+        } catch (e) {
+          // the response body is not JSON, so the default error message is kept
+        }
         dispatch({ type: DELETE_ACCOUNT_ERROR, payload: errMessage });
       }
     } catch (err) {

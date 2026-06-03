@@ -19,6 +19,8 @@ export const fetchTicketsListAction = (params = {}) => {
     dispatch({ type: FETCH_TICKETS_LIST_START, params });
     try {
       const token = localStorage.getItem("token");
+      /* the URL is built dynamically; optional filters are appended only when they have a value;
+         encodeURIComponent makes sure special characters in the search string don't break the URL */
       let url = `http://localhost:3001/tickets?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
@@ -35,6 +37,7 @@ export const fetchTicketsListAction = (params = {}) => {
 
       const response = await fetch(url, {
         headers: {
+          // ...(condition && { key: value }) is a shorthand to add a property only when the condition is true
           ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
@@ -92,6 +95,8 @@ export const fetchTicketDetailAction = (id) => {
   };
 };
 
+/* this action dispatches no Redux state update because after saving, navigation happens immediately;
+   the component awaits this thunk and catches errors locally with try/catch */
 export const saveTicketAction = (id, ticketData, isEditing, navigate) => {
   return async () => {
     try {
@@ -126,15 +131,17 @@ export const deleteTicketAction = (id) => {
     const response = await fetch(`http://localhost:3001/tickets/${id}`, {
       method: "DELETE",
       headers: {
-        ...(token && { Authorization: `Bearer ${token}` })
-      }
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
     });
     if (!response.ok) {
       let errMessage = "Error during deletion";
       try {
         const err = await response.json();
         errMessage = err.message || errMessage;
-      } catch (e) {}
+      } catch (e) {
+        // the response body is not JSON, so the default error message is kept
+      }
       throw new Error(errMessage);
     }
   };

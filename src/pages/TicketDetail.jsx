@@ -17,8 +17,8 @@ import {
 } from "../redux/actions/activities";
 import { fetchAllCoursesAction } from "../redux/actions/courses";
 import Loading from "../components/common/Loading";
-import { useNavigate, useParams, useLocation } from "react-router";
-import { Link } from "react-router";
+import { useNavigate, useParams, useLocation, Link } from "react-router";
+import { formatDateTime } from "../utils/dateUtils";
 import ConfirmModal from "../components/common/ConfirmModal";
 
 const TicketDetail = () => {
@@ -28,6 +28,9 @@ const TicketDetail = () => {
   const location = useLocation();
 
   const isNew = id === "new" || location.pathname === "/tickets/new" || !id;
+
+  /* location.state is a way to pass extra data when navigating (not visible in the URL);
+     used here to tell this page whether to open in edit mode or read-only mode */
   const {
     data: ticket,
     loading,
@@ -40,6 +43,28 @@ const TicketDetail = () => {
   const { user: loggedInUser, isLoggedIn } = useSelector((state) => state.auth);
   const settings = useSelector((state) => state.settings);
 
+  const getStatusBadgeVariant = (status) => {
+    const variants = {
+      UNASSIGNED: "primary",
+      IN_PROGRESS: "info",
+      PENDING_INFO: "warning",
+      RESOLVED: "success",
+      REJECTED: "danger",
+    };
+    return variants[status] || "secondary";
+  };
+
+  const getStatusLabel = (status) => {
+    const labels = {
+      UNASSIGNED: "Unassigned",
+      IN_PROGRESS: "In progress",
+      PENDING_INFO: "Pending info",
+      RESOLVED: "Resolved",
+      REJECTED: "Rejected",
+    };
+    return labels[status] || status;
+  };
+
   let ticketIsEditable = false;
   if (ticket && loggedInUser) {
     if (loggedInUser.role === "ADMIN") {
@@ -49,38 +74,7 @@ const TicketDetail = () => {
     }
   }
 
-  // I can edit if it's new, or if the user has editMode from the table row click, or computed ticketIsEditable.
   const isReadOnly = !isNew && !ticketIsEditable && !location.state?.editMode;
-
-  const formatDateTime = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    if (isNaN(date)) return dateString;
-
-    const tz = settings?.timezone || "UTC";
-    const dateFormat = settings?.dateFormat || "DD/MM/YYYY";
-    const timeFormat = settings?.timeFormat || "24h";
-
-    try {
-      const optionsDate = { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" };
-      const optionsTime = { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: timeFormat === "12h" };
-
-      const parts = new Intl.DateTimeFormat("en-US", optionsDate).formatToParts(date);
-      const m = parts.find(p => p.type === "month").value;
-      const d = parts.find(p => p.type === "day").value;
-      const y = parts.find(p => p.type === "year").value;
-      
-      let formattedDate = "";
-      if (dateFormat === "DD/MM/YYYY") formattedDate = `${d}/${m}/${y}`;
-      else if (dateFormat === "MM/DD/YYYY") formattedDate = `${m}/${d}/${y}`;
-      else if (dateFormat === "YYYY-MM-DD") formattedDate = `${y}-${m}-${d}`;
-
-      const formattedTime = new Intl.DateTimeFormat("en-US", optionsTime).format(date);
-      return `${formattedDate} ${formattedTime}`;
-    } catch (e) {
-      return dateString;
-    }
-  };
 
   const [formValues, setFormValues] = useState({
     title: "",
@@ -98,7 +92,6 @@ const TicketDetail = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [localError, setLocalError] = useState("");
 
-  // Activity States
   const [newActivityText, setNewActivityText] = useState("");
   const [newActivityAnonymous, setNewActivityAnonymous] = useState(false);
   const [editingActivityId, setEditingActivityId] = useState(null);
@@ -106,12 +99,12 @@ const TicketDetail = () => {
   const [showActivityDeleteModal, setShowActivityDeleteModal] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState(null);
   const [showAddActivityForm, setShowAddActivityForm] = useState(false);
-  
-  // Status Change States
   const [showChangeStatusForm, setShowChangeStatusForm] = useState(false);
   const [newStatus, setNewStatus] = useState("UNASSIGNED");
   const [statusComment, setStatusComment] = useState("");
 
+  /* separate useEffect hooks are used for different responsibilities so each one has a clear purpose;
+     this one loads the ticket data (or resets the form when creating a new ticket) */
   useEffect(() => {
     dispatch(fetchAllCoursesAction());
     if (isNew) {
@@ -135,6 +128,8 @@ const TicketDetail = () => {
     }
   }, [id, isNew, dispatch]);
 
+  /* this second useEffect runs when the ticket data arrives from the server and populates
+     the form fields; kept separate because the fetch is async */
   useEffect(() => {
     if (!isNew && ticket) {
       setFormValues({
@@ -147,7 +142,7 @@ const TicketDetail = () => {
         lessonName: ticket.lessonName || "",
         expectedBenefit: ticket.expectedBenefit || "",
         requestType: ticket.requestType || "DIDACTIC",
-        isFaqCandidate: ticket.isFaqCandidate || false
+        isFaqCandidate: ticket.isFaqCandidate || false,
       });
       setNewStatus(ticket.status || "UNASSIGNED");
     }
@@ -164,9 +159,6 @@ const TicketDetail = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLocalError("");
-
-    // Check if the user is not logged in but tries to create a non-anonymous ticket.
-    // The backend allows null user, but I should make sure the UI reflects it.
     let valuesToSubmit = { ...formValues };
     if (isNew && !isLoggedIn && !valuesToSubmit.isAnonymous) {
       valuesToSubmit.isAnonymous = true;
@@ -179,6 +171,8 @@ const TicketDetail = () => {
     e.preventDefault();
     if (!newStatus) return;
     try {
+      /* a dispatch can be awaited because thunks return Promises;
+         this ensures the status change is complete before the form is hidden */
       await dispatch(changeTicketStatusAction(id, { status: newStatus, comment: statusComment }));
       setShowChangeStatusForm(false);
       setStatusComment("");
@@ -271,12 +265,9 @@ const TicketDetail = () => {
       {!isNew && (
         <p className="text-muted mb-4">
           <strong>Author:</strong> {ticket?.userDeleted ? "user deleted" : (ticket?.user?.email ? `${ticket.user.email}${ticket.authorBachelorDescription ? ` (${ticket.authorBachelorDescription})` : ""}` : "Anonymous")}<br/>
-          <strong>Status:</strong> <span className={`badge bg-${ticket?.status === 'UNASSIGNED' ? 'primary' : ticket?.status === 'RESOLVED' ? 'success' : ticket?.status === 'REJECTED' ? 'danger' : ticket?.status === 'IN_PROGRESS' ? 'info' : 'warning'}`}>
-            {ticket?.status === 'UNASSIGNED' ? 'Unassigned' : 
-             ticket?.status === 'IN_PROGRESS' ? 'In progress' : 
-             ticket?.status === 'PENDING_INFO' ? 'Pending info' : 
-             ticket?.status === 'RESOLVED' ? 'Resolved' : 
-             ticket?.status === 'REJECTED' ? 'Rejected' : ticket?.status}
+          <strong>Status:</strong>{" "}
+          <span className={`badge bg-${getStatusBadgeVariant(ticket?.status)}`}>
+            {getStatusLabel(ticket?.status)}
           </span>
         </p>
       )}
@@ -608,7 +599,7 @@ const TicketDetail = () => {
                       ? `${activity.user.email}${activity.authorBachelorDescription ? ` (${activity.authorBachelorDescription})` : ""}` 
                       : "Anonymous");
 
-                const dateDisplay = formatDateTime(activity.createdAt);
+                const dateDisplay = formatDateTime(activity.createdAt, settings);
 
                 const isStatus = activity.statusChange;
                 return (

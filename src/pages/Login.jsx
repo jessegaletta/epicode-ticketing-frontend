@@ -1,7 +1,7 @@
 import { Container, Form, Button, FloatingLabel, Row, Alert } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { loginAction } from "../redux/actions";
 import Loading from "../components/common/Loading";
 
@@ -13,7 +13,6 @@ const Login = () => {
   const { loading, error, isLoggedIn } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    // If user is logged in, redirect to home page
     if (isLoggedIn) {
       navigate("/");
     }
@@ -79,14 +78,14 @@ const Login = () => {
           </Button>
 
           <div className="text-center mt-3">
-             <a href="/register" onClick={(e) => { e.preventDefault(); navigate('/register'); }} className="text-decoration-none">
-                Don't have an account? Sign Up
-             </a>
+            <Link to="/register" className="text-decoration-none">
+              Don't have an account? Sign Up
+            </Link>
           </div>
           <div className="text-center mt-2">
-             <a href="/forgot-password" onClick={(e) => { e.preventDefault(); navigate('/forgot-password'); }} className="text-decoration-none text-muted">
-                Forgot your password?
-             </a>
+            <Link to="/forgot-password" className="text-decoration-none text-muted">
+              Forgot your password?
+            </Link>
           </div>
         </Form>
       </Row>

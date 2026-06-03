@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Table, Button, Form, InputGroup, Pagination, Container, Row, Col, Spinner, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
+import { formatDateTime } from "../../utils/dateUtils";
 
 const GenericTable = ({
   columns,
@@ -11,7 +12,7 @@ const GenericTable = ({
   totalPages = 1,
   onFetchData,
   detailsUrlPrefix,
-  initialState = {}
+  initialState = {},
 }) => {
   const [page, setPage] = useState(initialState.page || 0);
   const [searchInput, setSearchInput] = useState(initialState.search || "");
@@ -22,52 +23,20 @@ const GenericTable = ({
 
   const settings = useSelector((state) => state.settings);
 
-  const formatDateTime = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    if (isNaN(date)) return dateString;
-
-    const tz = settings?.timezone || "UTC";
-    const dateFormat = settings?.dateFormat || "DD/MM/YYYY";
-    const timeFormat = settings?.timeFormat || "24h";
-
-    try {
-      const optionsDate = { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" };
-      const optionsTime = { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: timeFormat === "12h" };
-
-      const parts = new Intl.DateTimeFormat("en-US", optionsDate).formatToParts(date);
-      const m = parts.find(p => p.type === "month").value;
-      const d = parts.find(p => p.type === "day").value;
-      const y = parts.find(p => p.type === "year").value;
-      
-      let formattedDate = "";
-      if (dateFormat === "DD/MM/YYYY") formattedDate = `${d}/${m}/${y}`;
-      else if (dateFormat === "MM/DD/YYYY") formattedDate = `${m}/${d}/${y}`;
-      else if (dateFormat === "YYYY-MM-DD") formattedDate = `${y}-${m}-${d}`;
-
-      const formattedTime = new Intl.DateTimeFormat("en-US", optionsTime).format(date);
-      return `${formattedDate} ${formattedTime}`;
-    } catch (e) {
-      return dateString;
-    }
-  };
-
-  // Handle access denied redirect
   useEffect(() => {
     if (error && (error.toLowerCase().includes("access denied") || error.includes("403"))) {
       navigate("/access-denied");
     }
   }, [error, navigate]);
 
-  // Fetch data whenever page, searchTerm, or sorting changes
   useEffect(() => {
     if (onFetchData) {
       onFetchData({ page, search: searchTerm, sortBy: sortField, sortDir });
     }
-  }, [page, searchTerm, sortField, sortDir]); 
+  }, [page, searchTerm, sortField, sortDir]);
 
   const handleSearch = () => {
-    setPage(0); // Reset to first page on new search
+    setPage(0);
     setSearchTerm(searchInput);
   };
 
@@ -89,7 +58,7 @@ const GenericTable = ({
       setSortField(field);
       setSortDir("ASC");
     }
-    setPage(0); // Reset to first page on sort change
+    setPage(0);
   };
 
   const handleOpen = (item) => {
@@ -98,7 +67,6 @@ const GenericTable = ({
 
   return (
     <Container className="my-4 flex-grow-1">
-      {/* Top Toolbar */}
       <Row className="mb-3 align-items-center flex-nowrap g-2">
         <Col style={{ minWidth: 0 }}>
           <InputGroup>
@@ -120,7 +88,6 @@ const GenericTable = ({
         </Col>
       </Row>
 
-      {/* Main Content Area */}
       {error && !error.toLowerCase().includes("access denied") && (
         <Alert variant="danger">{error}</Alert>
       )}
@@ -139,9 +106,9 @@ const GenericTable = ({
                 {columns.map((col, index) => {
                   const currentSortField = col.sortField || col.field;
                   return (
-                    <th 
-                      key={index} 
-                      style={{ cursor: "pointer" }} 
+                    <th
+                      key={index}
+                      style={{ cursor: "pointer" }}
                       onClick={() => handleSort(currentSortField)}
                       className="text-nowrap"
                     >
@@ -163,10 +130,15 @@ const GenericTable = ({
                 </tr>
               ) : (
                 data.map((item) => (
-                  <tr key={item.id} onClick={() => handleOpen(item)} style={{ cursor: "pointer" }} className="table-row-clickable">
+                  <tr
+                    key={item.id}
+                    onClick={() => handleOpen(item)}
+                    style={{ cursor: "pointer" }}
+                    className="table-row-clickable"
+                  >
                     {columns.map((col, index) => (
                       <td key={index} className="align-middle text-nowrap">
-                        {col.isDate ? formatDateTime(item[col.field]) : item[col.field]}
+                        {col.isDate ? formatDateTime(item[col.field], settings) : item[col.field]}
                       </td>
                     ))}
                   </tr>
@@ -175,14 +147,12 @@ const GenericTable = ({
             </tbody>
           </Table>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="d-flex justify-content-center">
               <Pagination>
                 <Pagination.First onClick={() => setPage(0)} disabled={page === 0} />
                 <Pagination.Prev onClick={() => setPage(page - 1)} disabled={page === 0} />
-                
-                {/* Simple page numbers mapping */}
+                {/* [...Array(n).keys()] is a quick way to generate an array [0, 1, 2, ..., n-1] */}
                 {[...Array(totalPages).keys()].map((pageNum) => (
                   <Pagination.Item
                     key={pageNum}
@@ -192,7 +162,6 @@ const GenericTable = ({
                     {pageNum + 1}
                   </Pagination.Item>
                 ))}
-
                 <Pagination.Next onClick={() => setPage(page + 1)} disabled={page === totalPages - 1} />
                 <Pagination.Last onClick={() => setPage(totalPages - 1)} disabled={page === totalPages - 1} />
               </Pagination>

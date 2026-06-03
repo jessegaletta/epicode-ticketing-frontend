@@ -15,15 +15,19 @@ const BachelorDetail = () => {
   const isNew = id === "new" || location.pathname === "/bachelors/new" || !id;
   const { data: bachelorData, loading, error } = useSelector((state) => state.bachelors?.detail || {});
   const loggedInUser = useSelector((state) => state.auth?.user);
+  const token = useSelector((state) => state.auth?.token);
 
   const canEdit = loggedInUser && (loggedInUser.role === "ADMIN" || loggedInUser.role === "FACULTY");
   const isReadOnly = !isNew && !canEdit;
 
   useEffect(() => {
+    /* if a token exists but the profile hasn't loaded yet, the redirect is skipped;
+       without this guard, authenticated users would be sent to access-denied on page refresh */
+    if (token && !loggedInUser) return;
     if (!canEdit) {
       navigate("/access-denied");
     }
-  }, [canEdit, navigate]);
+  }, [canEdit, navigate, token, loggedInUser]);
 
   const [formValues, setFormValues] = useState({
     description: "",

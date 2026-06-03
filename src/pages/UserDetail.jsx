@@ -44,6 +44,8 @@ const UserDetail = () => {
   } = useSelector((state) => state.users?.detail || {});
   const bachelors = useSelector((state) => state.bachelors?.list?.data || []);
 
+  /* these booleans are derived from the URL so this one component handles three different modes:
+     viewing the logged-in user's profile, creating a new user, and editing/viewing another user */
   const isMe =
     location.pathname === "/users/me" || (user && id && String(user.id) === id);
   const isNew = id === "new" || location.pathname === "/users/new";
@@ -53,6 +55,8 @@ const UserDetail = () => {
   const isLoading = isMe ? authLoading : detailLoading;
   const error = isMe ? reduxError : detailError;
 
+  /* useTimezoneSelect is from a third-party library (react-timezone-select) that provides
+     a ready-made list of all timezones with their GMT offset labels */
   const { options } = useTimezoneSelect({
     timezones: allTimezones,
     labelStyle: "original",
@@ -88,6 +92,8 @@ const UserDetail = () => {
     dispatch(fetchBachelorsListAction({ size: 100 }));
   }, [dispatch]);
 
+  /* the function returned from useEffect runs as "cleanup" when the component is unmounted;
+     used to clear error/success messages so they don't show up when returning to this page */
   useEffect(() => {
     return () => {
       dispatch({ type: CLEAR_AUTH_MESSAGES });
@@ -194,7 +200,7 @@ const UserDetail = () => {
     setShowDeleteModal(false);
   };
 
-  // Handle access denied redirect
+  // when the server returns 403, the user is redirected to the access-denied page instead of a raw error
   useEffect(() => {
     if (
       error &&

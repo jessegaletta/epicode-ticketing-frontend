@@ -120,7 +120,9 @@ export const deleteUserAction = (id) => {
       try {
         const err = await response.json();
         errMessage = err.message || errMessage;
-      } catch (e) {}
+      } catch (e) {
+        // the response body is not JSON, so the default error message is kept
+      }
       throw new Error(errMessage);
     }
   };
