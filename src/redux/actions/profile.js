@@ -32,6 +32,8 @@ export const fetchProfileAction = (token) => {
             email: userData.email,
             avatarURL: userData.avatarURL,
             role: userData.role,
+            bachelorId: userData.bachelorId,
+            bachelorDescription: userData.bachelorDescription,
           },
         });
 
@@ -116,6 +118,8 @@ export const updateProfileAction = (submitValues, avatarFile, token) => {
           email: userData.email,
           avatarURL: userData.avatarURL,
           role: userData.role,
+          bachelorId: userData.bachelorId,
+          bachelorDescription: userData.bachelorDescription,
         },
       });
 
