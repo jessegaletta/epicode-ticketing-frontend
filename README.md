@@ -112,14 +112,15 @@ VITE_BACKEND_PORT=3001
 
 ### Steps
 
-1. Make sure the backend is running on `http://localhost:3001` (or the host/port configured in `.env`).
-2. Install dependencies:
+1. Create an `.env` file in the project root and fill in all values (see section below).
+2. Make sure the [backend](https://github.com/jessegaletta/epicode-ticketing-backend) is running on `http://localhost:3001` (or the host/port configured in `.env`).
+3. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. Start the development server:
+4. Start the development server:
 
 ```bash
 npm run dev
