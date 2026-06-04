@@ -1,3 +1,4 @@
+import { BASE_URL } from "../config/env";
 import { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap";
 import { useSearchParams, useNavigate, Link } from "react-router";
@@ -38,7 +39,7 @@ const ResetPassword = () => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3001/auth/reset-password", {
+      const response = await fetch(`${BASE_URL}/auth/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

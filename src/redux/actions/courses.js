@@ -1,3 +1,4 @@
+import { BASE_URL } from "../../config/env";
 import { logoutAction } from "./auth";
 
 export const FETCH_COURSES_LIST_START = "FETCH_COURSES_LIST_START";
@@ -23,7 +24,7 @@ export const fetchCoursesListAction = (params = {}) => {
     dispatch({ type: FETCH_COURSES_LIST_START, params });
     try {
       const token = localStorage.getItem("token");
-      let url = `http://localhost:3001/courses?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
+      let url = `${BASE_URL}/courses?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
       }
@@ -61,7 +62,7 @@ export const fetchAllCoursesAction = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const url = `http://localhost:3001/courses/all`;
+      const url = `${BASE_URL}/courses/all`;
 
       const response = await fetch(url, {
         headers: {
@@ -95,7 +96,7 @@ export const fetchCourseDetailAction = (id) => {
     dispatch({ type: FETCH_COURSE_DETAIL_START });
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3001/courses/${id}`, {
+      const response = await fetch(`${BASE_URL}/courses/${id}`, {
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
         },
@@ -126,7 +127,7 @@ export const saveCourseAction = (id, courseData, isEditing) => {
   return async (dispatch) => {
     const token = localStorage.getItem("token");
     const method = isEditing ? "PUT" : "POST";
-    const url = isEditing ? `http://localhost:3001/courses/${id}` : `http://localhost:3001/courses`;
+    const url = isEditing ? `${BASE_URL}/courses/${id}` : `${BASE_URL}/courses`;
     
     const response = await fetch(url, {
       method,
@@ -156,7 +157,7 @@ export const saveCourseAction = (id, courseData, isEditing) => {
 export const deleteCourseAction = (id) => {
   return async (dispatch) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`http://localhost:3001/courses/${id}`, {
+    const response = await fetch(`${BASE_URL}/courses/${id}`, {
       method: "DELETE",
       headers: {
         ...(token && { Authorization: `Bearer ${token}` })

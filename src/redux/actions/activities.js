@@ -6,7 +6,7 @@ export const UPDATE_ACTIVITY_SUCCESS = "UPDATE_ACTIVITY_SUCCESS";
 export const DELETE_ACTIVITY_SUCCESS = "DELETE_ACTIVITY_SUCCESS";
 export const CLEAR_ACTIVITIES = "CLEAR_ACTIVITIES";
 
-const BASE_URL = "http://localhost:3001";
+import { BASE_URL } from "../../config/env";
 
 /* helper function to avoid repeating the same header logic in every action;
    isJson = true adds the Content-Type header needed for POST/PUT requests with a JSON body */

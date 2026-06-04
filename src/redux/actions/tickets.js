@@ -1,3 +1,4 @@
+import { BASE_URL } from "../../config/env";
 import { logoutAction } from "./auth";
 
 export const FETCH_TICKETS_LIST_START = "FETCH_TICKETS_LIST_START";
@@ -21,7 +22,7 @@ export const fetchTicketsListAction = (params = {}) => {
       const token = localStorage.getItem("token");
       /* the URL is built dynamically; optional filters are appended only when they have a value;
          encodeURIComponent makes sure special characters in the search string don't break the URL */
-      let url = `http://localhost:3001/tickets?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
+      let url = `${BASE_URL}/tickets?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
       }
@@ -68,7 +69,7 @@ export const fetchTicketDetailAction = (id) => {
     dispatch({ type: FETCH_TICKET_DETAIL_START });
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3001/tickets/${id}`, {
+      const response = await fetch(`${BASE_URL}/tickets/${id}`, {
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
         },
@@ -102,7 +103,7 @@ export const saveTicketAction = (id, ticketData, isEditing, navigate) => {
     try {
       const token = localStorage.getItem("token");
       const method = isEditing ? "PUT" : "POST";
-      const url = isEditing ? `http://localhost:3001/tickets/${id}` : `http://localhost:3001/tickets`;
+      const url = isEditing ? `${BASE_URL}/tickets/${id}` : `${BASE_URL}/tickets`;
       
       const response = await fetch(url, {
         method,
@@ -128,7 +129,7 @@ export const saveTicketAction = (id, ticketData, isEditing, navigate) => {
 export const deleteTicketAction = (id) => {
   return async () => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`http://localhost:3001/tickets/${id}`, {
+    const response = await fetch(`${BASE_URL}/tickets/${id}`, {
       method: "DELETE",
       headers: {
         ...(token && { Authorization: `Bearer ${token}` }),
@@ -151,7 +152,7 @@ export const changeTicketStatusAction = (id, statusData) => {
   return async (dispatch) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3001/tickets/${id}/status`, {
+      const response = await fetch(`${BASE_URL}/tickets/${id}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

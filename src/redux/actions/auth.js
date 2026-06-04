@@ -1,3 +1,4 @@
+import { BASE_URL } from "../../config/env";
 import { fetchProfileAction } from "./profile";
 
 export const LOGIN_START = "LOGIN_START";
@@ -13,7 +14,7 @@ export const loginAction = (credentials) => {
   return async (dispatch) => {
     dispatch({ type: LOGIN_START });
     try {
-      const response = await fetch("http://localhost:3001/auth/login", {
+      const response = await fetch(`${BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,7 +77,7 @@ export const registerAction = (formValues) => {
   return async (dispatch) => {
     dispatch({ type: REGISTER_START });
     try {
-      const response = await fetch("http://localhost:3001/auth/register", {
+      const response = await fetch(`${BASE_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

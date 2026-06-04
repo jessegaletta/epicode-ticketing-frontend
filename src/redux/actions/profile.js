@@ -1,3 +1,4 @@
+import { BASE_URL } from "../../config/env";
 import { logoutAction } from "./auth";
 
 export const SET_USER = "SET_USER";
@@ -11,7 +12,7 @@ export const DELETE_ACCOUNT_ERROR = "DELETE_ACCOUNT_ERROR";
 export const fetchProfileAction = (token) => {
   return async (dispatch) => {
     try {
-      const meResponse = await fetch("http://localhost:3001/users/me", {
+      const meResponse = await fetch(`${BASE_URL}/users/me`, {
         headers: {
           ...(token && { Authorization: `Bearer ${token}` })
         }
@@ -60,7 +61,7 @@ export const updateProfileAction = (submitValues, avatarFile, token) => {
   return async (dispatch) => {
     dispatch({ type: UPDATE_PROFILE_START });
     try {
-      const response = await fetch("http://localhost:3001/users/me", {
+      const response = await fetch(`${BASE_URL}/users/me`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +93,7 @@ export const updateProfileAction = (submitValues, avatarFile, token) => {
         const formData = new FormData();
         formData.append("avatar", avatarFile);
 
-        const avatarResponse = await fetch("http://localhost:3001/users/me/avatar", {
+        const avatarResponse = await fetch(`${BASE_URL}/users/me/avatar`, {
           method: "PATCH",
           headers: {
             ...(token && { Authorization: `Bearer ${token}` }),
@@ -139,7 +140,7 @@ export const deleteAccountAction = (token, navigate) => {
   return async (dispatch) => {
     dispatch({ type: DELETE_ACCOUNT_START });
     try {
-      const response = await fetch("http://localhost:3001/users/me", {
+      const response = await fetch(`${BASE_URL}/users/me`, {
         method: "DELETE",
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),

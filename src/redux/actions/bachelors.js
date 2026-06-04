@@ -1,3 +1,4 @@
+import { BASE_URL } from "../../config/env";
 import { logoutAction } from "./auth";
 
 export const FETCH_BACHELORS_LIST_START = "FETCH_BACHELORS_LIST_START";
@@ -20,7 +21,7 @@ export const fetchBachelorsListAction = (params = {}) => {
     try {
       // the endpoint is public so no token is required, but it is sent anyway when available
       const token = localStorage.getItem("token");
-      let url = `http://localhost:3001/bachelors?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
+      let url = `${BASE_URL}/bachelors?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
       }
@@ -57,7 +58,7 @@ export const fetchBachelorDetailAction = (id) => {
     dispatch({ type: FETCH_BACHELOR_DETAIL_START });
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3001/bachelors/${id}`, {
+      const response = await fetch(`${BASE_URL}/bachelors/${id}`, {
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
         },
@@ -88,7 +89,7 @@ export const saveBachelorAction = (id, bachelorData, isEditing) => {
   return async (dispatch) => {
     const token = localStorage.getItem("token");
     const method = isEditing ? "PUT" : "POST";
-    const url = isEditing ? `http://localhost:3001/bachelors/${id}` : `http://localhost:3001/bachelors`;
+    const url = isEditing ? `${BASE_URL}/bachelors/${id}` : `${BASE_URL}/bachelors`;
     
     const response = await fetch(url, {
       method,
@@ -118,7 +119,7 @@ export const saveBachelorAction = (id, bachelorData, isEditing) => {
 export const deleteBachelorAction = (id) => {
   return async (dispatch) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`http://localhost:3001/bachelors/${id}`, {
+    const response = await fetch(`${BASE_URL}/bachelors/${id}`, {
       method: "DELETE",
       headers: {
         ...(token && { Authorization: `Bearer ${token}` })

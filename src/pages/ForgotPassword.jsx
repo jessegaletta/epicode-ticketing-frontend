@@ -1,3 +1,4 @@
+import { BASE_URL } from "../config/env";
 import { useState } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap";
 import { Link } from "react-router";
@@ -15,7 +16,7 @@ const ForgotPassword = () => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3001/auth/forgot-password", {
+      const response = await fetch(`${BASE_URL}/auth/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

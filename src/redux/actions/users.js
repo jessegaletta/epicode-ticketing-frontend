@@ -1,3 +1,4 @@
+import { BASE_URL } from "../../config/env";
 import { logoutAction } from "./auth";
 
 export const FETCH_USERS_LIST_START = "FETCH_USERS_LIST_START";
@@ -14,7 +15,7 @@ export const fetchUsersListAction = (params = {}) => {
     dispatch({ type: FETCH_USERS_LIST_START, params });
     try {
       const token = localStorage.getItem("token");
-      let url = `http://localhost:3001/users?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
+      let url = `${BASE_URL}/users?page=${page}&sortBy=${sortBy}&sortDir=${sortDir}`;
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
       }
@@ -51,7 +52,7 @@ export const fetchUserDetailAction = (id) => {
     dispatch({ type: FETCH_USER_DETAIL_START });
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3001/users/${id}`, {
+      const response = await fetch(`${BASE_URL}/users/${id}`, {
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
         },
@@ -83,7 +84,7 @@ export const saveUserAction = (id, userData, isEditing, navigate) => {
     try {
       const token = localStorage.getItem("token");
       const method = isEditing ? "PUT" : "POST";
-      const url = isEditing ? `http://localhost:3001/users/${id}` : `http://localhost:3001/users`;
+      const url = isEditing ? `${BASE_URL}/users/${id}` : `${BASE_URL}/users`;
       
       const response = await fetch(url, {
         method,
@@ -109,7 +110,7 @@ export const saveUserAction = (id, userData, isEditing, navigate) => {
 export const deleteUserAction = (id) => {
   return async () => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`http://localhost:3001/users/${id}`, {
+    const response = await fetch(`${BASE_URL}/users/${id}`, {
       method: "DELETE",
       headers: {
         ...(token && { Authorization: `Bearer ${token}` })
