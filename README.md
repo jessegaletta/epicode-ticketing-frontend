@@ -103,11 +103,10 @@ All API interactions use Redux Thunk async actions defined in `src/redux/actions
 
 ### Environment Variables
 
-Create a `.env` file in the project root only if you need to point to a backend running on a different host or port (defaults to `localhost:3001`):
+Create a `.env` file in the project root only if you need to point to a backend running on a different URL (default: `http://localhost:3001`):
 
 ```env
-VITE_BACKEND_HOST=localhost
-VITE_BACKEND_PORT=3001
+VITE_BACKEND_URL = http://localhost:3001
 ```
 
 ### Steps
