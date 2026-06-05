@@ -8,6 +8,11 @@ export const FETCH_USERS_LIST_ERROR = "FETCH_USERS_LIST_ERROR";
 export const FETCH_USER_DETAIL_START = "FETCH_USER_DETAIL_START";
 export const FETCH_USER_DETAIL_SUCCESS = "FETCH_USER_DETAIL_SUCCESS";
 export const FETCH_USER_DETAIL_ERROR = "FETCH_USER_DETAIL_ERROR";
+export const CLEAR_USER_DETAIL = "CLEAR_USER_DETAIL";
+
+export const clearUserDetailAction = () => ({
+  type: CLEAR_USER_DETAIL,
+});
 
 export const fetchUsersListAction = (params = {}) => {
   const { page = 0, search = "", sortBy = "id", sortDir = "ASC" } = params;

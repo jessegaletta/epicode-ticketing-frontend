@@ -5,6 +5,7 @@ import {
   FETCH_USER_DETAIL_START,
   FETCH_USER_DETAIL_SUCCESS,
   FETCH_USER_DETAIL_ERROR,
+  CLEAR_USER_DETAIL,
 } from "../actions";
 
 const initialState = {
@@ -60,6 +61,11 @@ const usersReducer = (state = initialState, action) => {
       return {
         ...state,
         detail: { ...state.detail, loading: false, error: action.payload },
+      };
+    case CLEAR_USER_DETAIL:
+      return {
+        ...state,
+        detail: { data: null, loading: false, error: null },
       };
     default:
       return state;

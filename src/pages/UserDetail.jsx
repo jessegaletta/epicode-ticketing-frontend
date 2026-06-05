@@ -16,6 +16,7 @@ import {
   fetchUserDetailAction,
   saveUserAction,
   deleteUserAction,
+  clearUserDetailAction,
 } from "../redux/actions";
 import { fetchBachelorsListAction } from "../redux/actions/bachelors";
 import Loading from "../components/common/Loading";
@@ -97,6 +98,7 @@ const UserDetail = () => {
   useEffect(() => {
     return () => {
       dispatch({ type: CLEAR_AUTH_MESSAGES });
+      dispatch(clearUserDetailAction());
     };
   }, [dispatch]);
 
@@ -111,6 +113,7 @@ const UserDetail = () => {
     if (isEditOther) {
       dispatch(fetchUserDetailAction(id));
     } else if (isNew) {
+      dispatch(clearUserDetailAction());
       setFormValues({
         firstName: "",
         lastName: "",

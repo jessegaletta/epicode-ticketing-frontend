@@ -2,7 +2,7 @@ import { Container, Form, Button, FloatingLabel, Row, Alert } from "react-bootst
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router";
-import { loginAction } from "../redux/actions";
+import { loginAction, CLEAR_AUTH_MESSAGES } from "../redux/actions";
 import Loading from "../components/common/Loading";
 
 const Login = () => {
@@ -17,6 +17,12 @@ const Login = () => {
       navigate("/");
     }
   }, [isLoggedIn, navigate]);
+
+  useEffect(() => {
+    return () => {
+      dispatch({ type: CLEAR_AUTH_MESSAGES });
+    };
+  }, [dispatch]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
