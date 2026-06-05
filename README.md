@@ -74,6 +74,45 @@
 | `/courses/new` | Create course | Admin / Faculty |
 | `/courses/:id` | Course detail / edit | Admin / Faculty |
 
+### Features
+
+The application is structured into several functional areas, each providing specific features based on the user's role (`STUDENT`, `FACULTY`, `ADMIN`).
+
+#### 1. Authentication & Authorization
+- **Login (`/login`)**: Allows users to authenticate using their credentials. Supports JWT token-based authentication.
+- **Registration (`/register`)**: New users can create an account. The form includes validation for email, password strength, and other required fields.
+- **Password Recovery (`/forgot-password`, `/reset-password`)**: Users can request a password reset link via email and securely set a new password.
+- **Access Control (`/access-denied`, `/session-expired`)**: Dedicated pages to handle unauthorized access attempts and expired sessions gracefully, redirecting users to safety.
+
+#### 2. Shared Data Tables (`GenericTable`)
+All list views in the application (Tickets, Users, Bachelors, Courses) are powered by a shared `GenericTable` component. This ensures a consistent interface offering:
+- **Global Search**: Text-based search across the current entity.
+- **Single-Column Sorting**: Clickable column headers to sort data ascending or descending.
+- **Pagination & Navigation**: Easy data browsing and clickable rows to open detail views.
+
+#### 3. Tickets Management
+- **Tickets Dashboard (`/tickets`)**: All users, including unauthenticated ones, can view all tickets.
+- **Ticket Detail & Creation (`/tickets/:id`, `/tickets/new`)**: 
+  - **Creation**: Anyone can open a new ticket. Unauthenticated user submissions are saved anonymously and cannot be modified by them afterward.
+  - **Detail View & Management**: Displays ticket history and a chat-like activity stream. 
+    - **Unauthenticated Users**: Read-only access.
+    - **Faculty**: Can update ticket progress and status.
+    - **Admins**: Full modification permissions.
+
+#### 4. User Management
+- **My Profile (`/users/me`)**: Authenticated users can manage their personal information and settings (dark mode, timezone).
+- **Users Management (`/users`, `/users/:id`)**: Admins have full access to the user directory to create/edit users, assign roles (`STUDENT`, `FACULTY`, `ADMIN`), and manage account statuses.
+
+#### 5. Academic Structure (Bachelors & Courses)
+- **Bachelors & Courses (`/bachelors`, `/courses`)**: Admins and Faculty have full CRUD access to manage degree programs and individual courses, keeping the academic catalog up to date.
+
+#### 6. Core Application Features
+- **Role-Based Access Control (RBAC)**: The UI dynamically adapts to the user's role. Buttons, menu items, and entire pages are hidden or disabled if the user lacks the necessary permissions.
+- **Global State Management**: Powered by Redux Toolkit. Ensures that data like user session, preferences, and fetched lists (tickets, users) are accessible across components without redundant API calls.
+- **Responsive Design**: Built with React Bootstrap, the application is fully responsive, ensuring a seamless experience on desktops, tablets, and mobile devices.
+- **Dark Mode & Localization**: Users can toggle between light and dark themes. Timezone and date format settings are available to personalize the experience.
+- **Error Handling & Loading States**: Comprehensive error boundaries and loading spinners (using the `Loading` and `Error` components) provide immediate feedback during API interactions.
+
 ---
 
 ## State Management
