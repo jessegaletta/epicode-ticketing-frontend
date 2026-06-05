@@ -78,25 +78,23 @@ const TicketsPage = () => {
 
   const handleCategoryChange = (e) => {
     const val = e.target.value;
+    lastParamsRef.current.page = 0;
     setFilterCategory(val);
-    dispatch(fetchTicketsListAction({ ...lastParamsRef.current, category: val, status: filterStatus, onlyOpen }));
   };
 
   const handleStatusChange = (e) => {
     const val = e.target.value;
+    lastParamsRef.current.page = 0;
     setFilterStatus(val);
-    dispatch(fetchTicketsListAction({ ...lastParamsRef.current, category: filterCategory, status: val, onlyOpen }));
   };
 
   const handleOnlyOpenChange = (e) => {
     const val = e.target.checked;
+    lastParamsRef.current.page = 0;
     setOnlyOpen(val);
-    let newStatus = filterStatus;
     if (val && (filterStatus === 'RESOLVED' || filterStatus === 'REJECTED')) {
-      newStatus = "";
       setFilterStatus("");
     }
-    dispatch(fetchTicketsListAction({ ...lastParamsRef.current, category: filterCategory, status: newStatus, onlyOpen: val }));
   };
 
   const columns = [
@@ -152,6 +150,7 @@ const TicketsPage = () => {
       </div>
 
       <GenericTable
+        key={`table-${filterCategory}-${filterStatus}-${onlyOpen}`}
         columns={columns}
         data={ticketsArray}
         loading={isLoading}
