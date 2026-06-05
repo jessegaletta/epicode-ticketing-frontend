@@ -32,7 +32,7 @@
 | Redux + Thunk for global state | Redux Toolkit store with async thunks for all API calls (auth, tickets, users, bachelors, courses, activities) |
 | At least 6 pages + dynamic routing | 14 pages; detail pages use dynamic routes (`/tickets/:id`, `/users/:id`, `/bachelors/:id`, `/courses/:id`) |
 | At least 2 user roles with different views | `STUDENT`, `FACULTY`, `ADMIN` — role-based UI rendering throughout |
-| External API consumption | Custom backend REST API (Epicode Ticketing Backend) |
+| External API consumption | Custom backend REST API ([Epicode Ticketing Backend](https://github.com/jessegaletta/epicode-ticketing-backend)) |
 | At least 4 controlled forms with validation | Login, Registration, Forgot/Reset Password, Ticket create/edit, User create/edit, Bachelor create/edit, Course create/edit |
 | Optional — styling library | Bootstrap 5 + React Bootstrap |
 
@@ -101,14 +101,6 @@ All API interactions use Redux Thunk async actions defined in `src/redux/actions
 | Node.js | 18+ |
 | npm | 9+ |
 
-### Environment Variables
-
-Create a `.env` file in the project root only if you need to point to a backend running on a different URL (default: `http://localhost:3001`):
-
-```env
-VITE_BACKEND_URL = http://localhost:3001
-```
-
 ### Steps
 
 1. Create an `.env` file in the project root and fill in all values (see section below).
@@ -126,6 +118,14 @@ npm run dev
 ```
 
 The application is available at `http://localhost:5173`.
+
+### Environment Variables
+
+Create a `.env` file in the project root only if you need to point to a backend running on a different URL (default: `http://localhost:3001`):
+
+```env
+VITE_BACKEND_URL = http://localhost:3001
+```
 
 ### Build for production
 
