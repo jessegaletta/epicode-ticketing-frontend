@@ -51,7 +51,7 @@ const ForgotPassword = () => {
               {error && <Alert variant="danger">{error}</Alert>}
 
               <p className="text-muted text-center mb-4">
-                Enter your email address and we will send you a link to reset your password.
+                Enter your email address and I will send you a link to reset your password.
               </p>
 
               <Form onSubmit={handleSubmit}>

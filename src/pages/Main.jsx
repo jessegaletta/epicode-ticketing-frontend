@@ -15,7 +15,7 @@ const Main = function () {
             Welcome to the Epicode Ticketing System, a comprehensive platform developed to simplify the collection and management of user reports.
           </p>
           <p className="lead mb-5 text-secondary">
-            We trust in your responsibility to use this tool with the utmost seriousness and in a correct manner.
+            I trust in your responsibility to use this tool with the utmost seriousness and in a correct manner.
           </p>
           
           <div className="d-flex justify-content-center gap-3 mb-4">
